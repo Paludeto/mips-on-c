@@ -17,24 +17,24 @@ void tokenize_line(char *line) {
 
     const char delimiters[] = " \t,\n"; // Define delimiters
     char *token = strtok(line, delimiters); // Get the first token
-
+    
     while (token != NULL) {
 
-        if (is_inst(token)) {
-            printf("Instruction: %s\n", token);
-        }
-        
-        if (is_label(token)) {
-            printf("Label: %s\n", token);
+         if (is_inst(token)) {
+            // Parse operands
+            char *instruction = token;
+            char *operands[10]; // Assume a maximum of 10 operands
+            int operand_count = 0;
+
+            while ((token = strtok(NULL, delimiters)) != NULL) {
+                operands[operand_count++] = token;
+            }
+
+            // Validate instruction syntax and execute it (TO-DO)
+            validate_instruction(instruction, operands, operand_count);
         }
 
-        if (is_op(token)) {
-            printf("Operand: %s\n", token);
-        }
-
-        if (is_address(token)) {
-            printf("Address: %s\n", token);
-        }
+        // test_fn(token); tests tokenization + checks
 
         token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off
 
@@ -179,5 +179,133 @@ bool is_address(const char *token) {
     }
 
     return true;
+
+}
+
+bool is_data_field(const char *token) {
+
+    return strcasecmp(token, ".data") == 0;
+
+}
+
+bool is_text_field(const char *token) {
+
+    return strcasecmp(token, ".text") == 0;
+
+}
+
+bool is_directive(const char *token) {
+
+    const char *directives[] = {".word", ".byte", ".half", ".float", ".double", ".space", NULL};
+
+    for (int i = 0; directives[i] != NULL; i++) {
+        if (strcmp(token, directives[i]) == 0) {
+            return true; // Valid directive found
+        }
+    }
+
+    return false;
+
+}
+
+void validate_instruction(char *instruction, char **operands, int operand_count) {
+
+    if (strcmp(instruction, "add") == 0 || strcmp(instruction, "sub") == 0 || strcmp(instruction, "mult") == 0 || 
+        strcmp(instruction, "slt") == 0 || strcmp(instruction, "and") == 0 || strcmp(instruction, "or") == 0) {
+        // R-type: 3 register operands
+        if (operand_count != 3) {
+            printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
+            return;
+        }
+
+        for (int i = 0; i < operand_count; i++) {
+            if (!is_reg(operands[i])) {
+                printf("Error: %s operand %d is not a valid register: %s\n", instruction, i + 1, operands[i]);
+                return;
+            }
+        }
+
+    } else if (strcmp(instruction, "lw") == 0 || strcmp(instruction, "sw") == 0 || strcmp(instruction, "lui") == 0) {
+        // I-type: 1 register and 1 address
+        if (operand_count != 2) {
+            printf("Error: %s expects 2 operands, found %d\n", instruction, operand_count);
+            return;
+        }
+
+        if (!is_reg(operands[0])) {
+            printf("Error: %s first operand is not a valid register: %s\n", instruction, operands[0]);
+            return;
+        }
+
+        if (!is_address(operands[1])) {
+            printf("Error: %s second operand is not a valid address: %s\n", instruction, operands[1]);
+            return;
+        }
+
+    } else if (strcmp(instruction, "beq") == 0 || strcmp(instruction, "bne") == 0 || strcmp(instruction, "slti") == 0 || strcmp(instruction, "addi") == 0) {
+        // I-type: 2 registers and 1 immediate
+        if (operand_count != 3) {
+            printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
+            return;
+        }
+
+        if (!is_reg(operands[0]) || !is_reg(operands[1])) {
+            printf("Error: %s requires the first two operands to be registers.\n", instruction);
+            return;
+        }
+
+        if (!is_imm(operands[2])) {
+            printf("Error: %s requires the third operand to be an immediate: %s\n", operands[2]);
+            return;
+        }
+
+    // } else if (strcmp(instruction, "j") == 0 || strcmp(instruction, "jal") == 0) {
+    //     // J-type: 1 label
+    //     if (operand_count != 1) {
+    //         printf("Error: %s expects 1 operand, found %d\n", instruction, operand_count);
+    //         return;
+    //     }
+
+    //     if (!is_label(operands[0])) {
+    //         printf("Error: %s requires a label as the operand: %s\n", instruction, operands[0]);
+    //         return;
+    //     }    
+
+    } else {
+        printf("Error: Unknown instruction: %s\n", instruction);
+    }
+
+}
+
+
+void test_fn(char *token) {
+
+    if (is_data_field(token)) {
+        printf("Data field: %s\n", token);
+    }
+
+    if (is_directive(token)) {
+        printf("Directive: %s\n", token);
+    }
+
+    if (is_text_field(token)) {
+        printf("Text field: %s\n", token);
+    }
+
+    if (is_inst(token)) {
+        printf("Instruction: %s\n", token);
+    }
+    
+    if (is_label(token)) {
+        printf("Label: %s\n", token);
+    }
+
+    if (is_op(token)) {
+        printf("Operand: %s\n", token);
+    }
+
+    if (is_address(token)) {
+        printf("Address: %s\n", token);
+    }
 
 }
