@@ -12,19 +12,6 @@ typedef enum InstructionType {
     J
 } InstructionType;
 
-typedef struct Instruction {
-    char opcode[10]; 
-    InstructionType type;
-    char params[3][20];
-    int paramCount;
-} Instruction;
-
-// Branching
-typedef struct Label {
-    char name[256];
-    uint32_t line;
-} Label;
-
 // Operands for specified R and I instructions
 typedef struct Operand {
     union {
@@ -33,7 +20,20 @@ typedef struct Operand {
     };
 } Operand;
 
-void syscall(int i, Register arg, Register *v0);
+typedef struct Instruction {
+    char opcode[10]; 
+    InstructionType type;
+    Operand params[3][20];
+    int paramCount;
+} Instruction;
+
+// Branching (?)
+typedef struct Label {
+    char name[256];
+    uint32_t line;
+} Label;
+
+void syscall(Instruction *inst, Register *arg, Register *dest);
 void init_instruction(Instruction *inst);
 void binary(Instruction inst);
 void r_add(Register *rs, Register *rd, Register *rt);

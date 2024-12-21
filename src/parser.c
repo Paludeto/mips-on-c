@@ -13,7 +13,7 @@ void parseFile(char *file_name, Instruction *inst_arr, Register *r_arr, Label *l
 
 }
 
-void tokenize_line(char *line) {
+void tokenize_line(char *line, Register *r_array, InstructionList *inst_list) {
 
     const char delimiters[] = " \t,\n"; // Define delimiters
     char *token = strtok(line, delimiters); // Get the first token
@@ -31,7 +31,7 @@ void tokenize_line(char *line) {
             }
 
             // Validate instruction syntax and execute it (TO-DO)
-            validate_instruction(instruction, operands, operand_count);
+            validate_instruction(instruction, operands, operand_count, r_array, inst_list);
         }
 
         // test_fn(token); tests tokenization + checks
@@ -130,6 +130,25 @@ bool is_reg(const char *token) {
 
 }
 
+int get_register_index(const char *reg) {
+
+    const char *registers[] = {
+        "$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2", "$a3",
+        "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
+        "$s0", "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7",
+        "$t8", "$t9", "$k0", "$k1", "$gp", "$sp", "$fp", "$ra"
+    };
+
+    for (int i = 0; i < 32; i++) {
+        if (strcmp(reg, registers[i]) == 0) {
+            return i;
+        }
+    }
+
+    return -1; // Return -1 if the register is invalid
+
+}
+
 bool is_address(const char *token) {
 
     if (token == NULL) {
@@ -208,10 +227,11 @@ bool is_directive(const char *token) {
 
 }
 
-void validate_instruction(char *instruction, char **operands, int operand_count) {
+void validate_instruction(char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
 
     if (strcmp(instruction, "add") == 0 || strcmp(instruction, "sub") == 0 || strcmp(instruction, "mult") == 0 || 
         strcmp(instruction, "slt") == 0 || strcmp(instruction, "and") == 0 || strcmp(instruction, "or") == 0) {
+
         // R-type: 3 register operands
         if (operand_count != 3) {
             printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
@@ -225,7 +245,34 @@ void validate_instruction(char *instruction, char **operands, int operand_count)
             }
         }
 
+        Instruction new_inst;
+        strncpy(new_inst.opcode, instruction, sizeof(new_inst.opcode));
+        new_inst.opcode[sizeof(new_inst.opcode) - 1] = '\0';
+        new_inst.type = R;
+        new_inst.paramCount = operand_count;
+    
+        for (int i = 0; i < operand_count; i++) {
+
+            int reg_index = get_register_index(operands[i]); // Function to map register string to index
+            if (reg_index < 0) {
+                printf("Error: Invalid register: %s\n", operands[i]);
+                return;
+            }
+
+            new_inst.params[i][0].r = r_array[reg_index];
+
+        }
+
+        if (strcmp(instruction, "add") == 0) {
+            r_add(&r_array[get_register_index(new_inst.params[0]->r.name)], 
+            &r_array[get_register_index(new_inst.params[1]->r.name)], 
+            &r_array[get_register_index(new_inst.params[2]->r.name)]);
+        }
+       
+        add_instruction(inst_list, &new_inst);
+
     } else if (strcmp(instruction, "lw") == 0 || strcmp(instruction, "sw") == 0 || strcmp(instruction, "lui") == 0) {
+
         // I-type: 1 register and 1 address
         if (operand_count != 2) {
             printf("Error: %s expects 2 operands, found %d\n", instruction, operand_count);
@@ -243,6 +290,7 @@ void validate_instruction(char *instruction, char **operands, int operand_count)
         }
 
     } else if (strcmp(instruction, "beq") == 0 || strcmp(instruction, "bne") == 0 || strcmp(instruction, "slti") == 0 || strcmp(instruction, "addi") == 0) {
+        
         // I-type: 2 registers and 1 immediate
         if (operand_count != 3) {
             printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
