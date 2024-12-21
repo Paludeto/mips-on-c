@@ -11,7 +11,6 @@ void init_registers(Register *r_arr) {
 
     for (int i = 0; i < REG_NUM; i++) {
         strncpy(r_arr[i].name, names[i], 5);
-        r_arr[i].value = 0;
         r_arr[i].number = i;
     }
 
