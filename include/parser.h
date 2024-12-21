@@ -20,5 +20,6 @@ bool is_text_field(const char *token);
 bool is_directive(const char *token);
 void test_fn(char *token);
 void validate_instruction(char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list);
+void create_inst(char *instruction, char **operands, int operand_count, Instruction *new_inst, Register *r_array, InstructionList *inst_list, InstructionType type) ;
 
 #endif

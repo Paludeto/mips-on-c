@@ -9,7 +9,7 @@ void parseFile(char *file_name, Instruction *inst_arr, Register *r_arr, Label *l
         return;
     }
 
-    // TO-DO  
+    // TO-DO (file parsing)
 
 }
 
@@ -30,11 +30,11 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list) {
                 operands[operand_count++] = token;
             }
 
-            // Validate instruction syntax and execute it (TO-DO)
+            // Validate instruction syntax and execute it (wip)
             validate_instruction(instruction, operands, operand_count, r_array, inst_list);
         }
 
-        // test_fn(token); tests tokenization + checks
+        // test_fn(token); tests tokenization
 
         token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off
 
@@ -65,7 +65,7 @@ bool is_inst(const char *token) {
     }
     // should be edited w/ the specified instructions later on
     const char *inst_arr[] = {
-        "add", "sub", "mul", "div", "and", "or", "xor", "nor",
+        "add", "sub", "mult", "div", "and", "or", "xor", "nor",
         "sll", "srl", "lw", "sw", "beq", "bne", "j", "jal", "jr",
         "nop", "addi", NULL
     };
@@ -227,6 +227,7 @@ bool is_directive(const char *token) {
 
 }
 
+// Checks instruction type and executes it
 void validate_instruction(char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
 
     if (strcmp(instruction, "add") == 0 || strcmp(instruction, "sub") == 0 || strcmp(instruction, "mult") == 0 || 
@@ -246,30 +247,33 @@ void validate_instruction(char *instruction, char **operands, int operand_count,
         }
 
         Instruction new_inst;
-        strncpy(new_inst.opcode, instruction, sizeof(new_inst.opcode));
-        new_inst.opcode[sizeof(new_inst.opcode) - 1] = '\0';
-        new_inst.type = R;
-        new_inst.paramCount = operand_count;
-    
-        for (int i = 0; i < operand_count; i++) {
 
-            int reg_index = get_register_index(operands[i]); // Function to map register string to index
-            if (reg_index < 0) {
-                printf("Error: Invalid register: %s\n", operands[i]);
-                return;
-            }
-
-            new_inst.params[i][0].r = r_array[reg_index];
-
-        }
-
+        create_inst(instruction, operands, operand_count, &new_inst, r_array, inst_list, R);
+       
         if (strcmp(instruction, "add") == 0) {
             r_add(&r_array[get_register_index(new_inst.params[0]->r.name)], 
             &r_array[get_register_index(new_inst.params[1]->r.name)], 
             &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        }
-       
-        add_instruction(inst_list, &new_inst);
+        } else if (strcmp(instruction, "sub") == 0) {
+            r_sub(&r_array[get_register_index(new_inst.params[0]->r.name)], 
+            &r_array[get_register_index(new_inst.params[1]->r.name)], 
+            &r_array[get_register_index(new_inst.params[2]->r.name)]);
+        } else if (strcmp(instruction, "mult") == 0) {
+            r_mult(&r_array[get_register_index(new_inst.params[0]->r.name)], 
+            &r_array[get_register_index(new_inst.params[1]->r.name)], 
+            &r_array[get_register_index(new_inst.params[2]->r.name)]);
+        } else if (strcmp(instruction, "and") == 0) {
+            r_and(&r_array[get_register_index(new_inst.params[0]->r.name)], 
+            &r_array[get_register_index(new_inst.params[1]->r.name)], 
+            &r_array[get_register_index(new_inst.params[2]->r.name)]);
+        } else if (strcmp(instruction, "or") == 0) {
+            r_or(&r_array[get_register_index(new_inst.params[0]->r.name)], 
+            &r_array[get_register_index(new_inst.params[1]->r.name)], 
+            &r_array[get_register_index(new_inst.params[2]->r.name)]);
+        } 
+
+        // Implement SLL logic
+
 
     } else if (strcmp(instruction, "lw") == 0 || strcmp(instruction, "sw") == 0 || strcmp(instruction, "lui") == 0) {
 
@@ -289,7 +293,7 @@ void validate_instruction(char *instruction, char **operands, int operand_count,
             return;
         }
 
-    } else if (strcmp(instruction, "beq") == 0 || strcmp(instruction, "bne") == 0 || strcmp(instruction, "slti") == 0 || strcmp(instruction, "addi") == 0) {
+    } else if (strcmp(instruction, "slti") == 0 || strcmp(instruction, "addi") == 0) {
         
         // I-type: 2 registers and 1 immediate
         if (operand_count != 3) {
@@ -307,6 +311,13 @@ void validate_instruction(char *instruction, char **operands, int operand_count,
             return;
         }
 
+        Instruction new_inst;
+        create_inst(instruction, operands, operand_count, &new_inst, r_array, inst_list, I);
+
+        if (strcmp(instruction, "addi") == 0) {
+            i_addi(&r_array[get_register_index(operands[0])], &r_array[get_register_index(operands[1])], atoi(operands[2]));
+        }
+    // NO BRANCHING (for now)
     // } else if (strcmp(instruction, "j") == 0 || strcmp(instruction, "jal") == 0) {
     //     // J-type: 1 label
     //     if (operand_count != 1) {
@@ -325,7 +336,78 @@ void validate_instruction(char *instruction, char **operands, int operand_count,
 
 }
 
+// Pushes instruction to a linked-list of instructions, simulating some sort of call-stack for debugging purposes
+void create_inst(char *instruction, char **operands, int operand_count, 
+    Instruction *new_inst, Register *r_array, InstructionList *inst_list, InstructionType type) {
+    
+    strncpy(new_inst->opcode, instruction, sizeof(new_inst->opcode));
+    new_inst->opcode[sizeof(new_inst->opcode) - 1] = '\0';
 
+    if (type == R) {
+        new_inst->type = R;
+    } else if (type == I) {
+        new_inst->type = I;
+    } else {
+        new_inst->type = J;
+    }
+    
+    new_inst->param_count = operand_count;
+
+    // Param processing
+    if (type == R) {        
+
+        // 3 register-operations
+        if (operand_count == 3 && is_reg(operands[2])) {
+             
+            for (int i = 0; i < operand_count; i++) {
+
+                int reg_index = get_register_index(operands[i]); // Function to map register string to index
+
+                if (reg_index < 0) {
+                    printf("Error: Invalid register: %s\n", operands[i]);
+                    return;
+                }
+
+                new_inst->params[i][0].r = r_array[reg_index];
+
+            }
+        }
+
+        // Register, register, int
+        if (operand_count == 3 && is_imm(operands[2])) {
+
+            // Implement logic for SLL
+
+        }
+        
+
+    } else if (type == I) {
+
+        if (operand_count == 2 && is_imm(operands[1])) {
+            // Register, register, immediate
+            for (int i = 0; i < operand_count; i++) {
+
+                if (i < operand_count - 1) { // Process registers
+                    int reg_index = get_register_index(operands[i]);
+                    if (reg_index != -1) {
+                        new_inst->params[i][0].r = r_array[reg_index];
+                    } else {
+                        printf("Error: Invalid register %s\n", operands[i]);
+                    }
+                } else { // Process the immediate value
+                    new_inst->params[2][0].i = atoi(operands[i]);
+                }
+
+            }
+        }
+        
+    }
+
+    add_instruction(inst_list, new_inst);
+
+}
+
+// Used to test each token's parse
 void test_fn(char *token) {
 
     if (is_data_field(token)) {
