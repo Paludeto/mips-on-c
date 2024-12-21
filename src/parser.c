@@ -383,7 +383,7 @@ void create_inst(char *instruction, char **operands, int operand_count,
 
     } else if (type == I) {
 
-        if (operand_count == 3 && is_imm(operands[1])) {
+        if (operand_count == 3 && is_imm(operands[2])) {
             // Register, register, immediate
             for (int i = 0; i < operand_count; i++) {
 
