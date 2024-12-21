@@ -26,7 +26,6 @@ int main() {
     tokenize_line(line3, r_array, &inst_list);
     tokenize_line(line4, r_array, &inst_list);
     tokenize_line(line5, r_array, &inst_list);
-    tokenize_line(line5, r_array, &inst_list);
 
     print_instruction_list(&inst_list);
 
