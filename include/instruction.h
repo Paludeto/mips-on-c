@@ -11,20 +11,15 @@ typedef enum InstructionType {
     UNKNOWN
 } InstructionType;
 
+// Dispatcher pattern, where we map the instruction's name to a function in a table via function pointers
+// Each instruction has its own executor function in the table
 typedef struct Instruction {
-    char *name; 
+    char *name;
     char **operands;
     InstructionType type;
     int op_count;
-} Instruction;
-
-// For future use with command pattern
-typedef struct InstructionTable {
-    char *name;
-    InstructionType type;
-    int op_count;
     void (*executor)(char **operands, Register *r_array);  
-} InstructionTable;
+} Instruction;
 
 void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);
@@ -43,5 +38,14 @@ void r_sll(Register *rt, Register *rd, int shamt);
 // I-Type instructions
 void i_addi(Register *rs, Register *rt, int imm);
 void i_lui(Register *rt, int16_t imm);
+
+// Instruction executors
+void execute_add(char **operands, Register *r_array);
+void execute_sub(char **operands, Register *r_array);
+
+// Instruction creation and validation
+Instruction *find_instruction(const char *name);
+Instruction *create_instruction(const char *name, char **operands, int op_count);
+void free_instruction(Instruction *inst);
 
 #endif

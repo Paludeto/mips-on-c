@@ -13,5 +13,6 @@ typedef struct Register {
 } Register;
 
 void init_registers(Register *regArray);
+int get_register_index(const char *reg);
 
 #endif

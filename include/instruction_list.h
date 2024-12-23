@@ -1,6 +1,7 @@
 #ifndef INSTRUCTION_LIST_H
 #define INSTRUCTION_LIST_H
 
+// This is for debugging purposes, we should probably use some sort of 
 #include "instruction.h"
 #include <stdlib.h>
 #include <string.h>
