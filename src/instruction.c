@@ -5,6 +5,7 @@
 Instruction table[] = {
     {"add", NULL, R, 3, execute_add},
     {"sub", NULL, R, 3, execute_sub},
+    {"mult", NULL, R, 3, execute_mult},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
@@ -29,13 +30,24 @@ void execute_add(char **operands, Register *r_array) {
 void execute_sub(char **operands, Register *r_array) {
 
     printf("Executing SUB with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
-    
 
     int rd = get_register_index(operands[0]);
     int rs = get_register_index(operands[1]);
     int rt = get_register_index(operands[2]);
     
     r_sub(&r_array[rs], &r_array[rt], &r_array[rd]);
+
+}
+
+void execute_mult(char **operands, Register *r_array) {
+
+    printf("Executing MULT with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rd = get_register_index(operands[0]);
+    int rs = get_register_index(operands[1]);
+    int rt = get_register_index(operands[2]);
+
+    r_mult(&r_array[rs], &r_array[rt], &r_array[rd]);
 
 }
 

@@ -42,6 +42,7 @@ void i_lui(Register *rt, int16_t imm);
 // Instruction executors
 void execute_add(char **operands, Register *r_array);
 void execute_sub(char **operands, Register *r_array);
+void execute_mult(char **operands, Register *r_array);
 
 // Instruction creation and validation
 Instruction *find_instruction(const char *name);
