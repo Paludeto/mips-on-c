@@ -42,16 +42,16 @@ void print_instruction_list(InstructionList *list) {
     while (current != NULL) {
 
         if (current->instruction.type == R) {
-            printf("Instruction %d: %s", index++, current->instruction.opcode);
-            printf(" %s", current->instruction.params[0]);
-            printf(" %s", current->instruction.params[1]);
-            printf(" %s", current->instruction.params[2]);
+            printf("Instruction %d: %s", index++, current->instruction.name);
+            printf(" %s", current->instruction.name[0]);
+            printf(" %s", current->instruction.operands[1]);
+            printf(" %s", current->instruction.operands[2]);
             printf(", type %d\n", current->instruction.type);
         } else if (current->instruction.type == I) {
-            printf("Instruction %d: %s", index++, current->instruction.opcode);
-            printf(" %s", current->instruction.params[0]->r.name);
-            printf(" %s", current->instruction.params[1]->r.name);
-            printf(" %d", current->instruction.params[2]->i);
+            printf("Instruction %d: %s", index++, current->instruction.name);
+            printf(" %s", current->instruction.name[0]);
+            printf(" %s", current->instruction.operands[1]);
+            printf(" %s", current->instruction.operands[2]);
             printf(", type %d\n", current->instruction.type);
         }
         

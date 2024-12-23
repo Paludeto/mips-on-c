@@ -1,6 +1,12 @@
 #include "parser.h"
 
-void parseFile(char *file_name, Instruction *inst_arr, Register *r_arr, Label *label_arr) {
+InstructionTable table[] = {
+    {"add", R, 3, execute_add},
+    {"sub", R, 3, execute_sub},
+    {NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
+};
+
+void parseFile(char *file_name, Instruction *inst_arr, Register *r_array) {
 
     FILE *fp = fopen(file_name, "r");
 
@@ -31,13 +37,141 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list) {
             }
 
             // Validate instruction syntax and execute it (wip)
-            validate_instruction(instruction, operands, operand_count, r_array, inst_list);
+            validate_and_execute(instruction, operands, operand_count, r_array, inst_list);
+
         }
 
         // test_fn(token); tests tokenization
 
         token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off
 
+    }
+
+}
+
+// Checks if instruction is in the table
+InstructionTable *find_instruction(const char *name) {
+
+    for (int i = 0; table[i].name != NULL; i++) {
+        if (strcmp(name, table[i].name) == 0) {
+            return &table[i];
+        }
+    }
+
+    return NULL;
+
+}
+
+// Creates instruction object
+Instruction *create_instruction(const char *name, char **operands, int op_count) {
+
+    Instruction *new_inst = malloc(sizeof(Instruction));
+    new_inst->name = strdup(name);
+    new_inst->operands = malloc(sizeof(char *) * op_count);
+
+    for (int i = 0; i < op_count; i++) {
+        new_inst->operands[i] = strdup(operands[i]);
+    }
+
+    return new_inst;
+
+}
+
+void free_instruction(Instruction *inst) {
+
+    free(inst->name);
+
+    for (int i = 0; i < inst->op_count; i++) {
+        free(inst->operands[i]);
+    }
+
+    free(inst->operands);
+    free(inst);
+
+}
+
+bool validate_operands(const InstructionTable *inst_def, char **operands, int operand_count) {
+
+    if (inst_def->op_count != operand_count) {
+        printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
+        return false;
+    }
+    return true;
+
+}
+
+// Validates and executes an instruction
+void validate_and_execute(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
+
+    InstructionTable *inst_def = find_instruction(instruction);
+    if (!inst_def) {
+        printf("Error: Unknown instruction: %s\n", instruction);
+        return;
+    }
+    if (!validate_operands(inst_def, operands, operand_count)) {
+        return;
+    }
+
+    Instruction *inst = create_instruction(instruction, operands, operand_count);
+    inst_def->executor(inst->operands, r_array);
+    free_instruction(inst);
+
+}
+
+void execute_add(char **operands, Register *r_array) {
+    
+    printf("Executing ADD with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rd = get_register_index(operands[0]);
+    int rs = get_register_index(operands[1]);
+    int rt = get_register_index(operands[2]);
+    
+    r_array[rd].value = r_array[rs].value + r_array[rt].value;
+
+}
+
+void execute_sub(char **operands, Register *r_array) {
+
+    printf("Executing SUB with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+    
+
+    Register rd = r_array[get_register_index(operands[0])];
+    Register rs = r_array[get_register_index(operands[1])];
+    Register rt = r_array[get_register_index(operands[2])];
+    
+    r_sub(&rs, &rt, &rd);
+
+}
+
+// Used to test each token's parse
+void test_fn(char *token) {
+
+    if (is_data_field(token)) {
+        printf("Data field: %s\n", token);
+    }
+
+    if (is_directive(token)) {
+        printf("Directive: %s\n", token);
+    }
+
+    if (is_text_field(token)) {
+        printf("Text field: %s\n", token);
+    }
+
+    if (is_inst(token)) {
+        printf("Instruction: %s\n", token);
+    }
+    
+    if (is_label(token)) {
+        printf("Label: %s\n", token);
+    }
+
+    if (is_op(token)) {
+        printf("Operand: %s\n", token);
+    }
+
+    if (is_address(token)) {
+        printf("Address: %s\n", token);
     }
 
 }
@@ -224,218 +358,5 @@ bool is_directive(const char *token) {
     }
 
     return false;
-
-}
-
-// Checks instruction type and executes it
-void validate_instruction(char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
-
-    if (strcmp(instruction, "add") == 0 || strcmp(instruction, "sub") == 0 || strcmp(instruction, "mult") == 0 || 
-        strcmp(instruction, "slt") == 0 || strcmp(instruction, "and") == 0 || strcmp(instruction, "or") == 0) {
-
-        // R-type: 3 register operands
-        if (operand_count != 3) {
-            printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
-            return;
-        }
-
-        for (int i = 0; i < operand_count; i++) {
-            if (!is_reg(operands[i])) {
-                printf("Error: %s operand %d is not a valid register: %s\n", instruction, i + 1, operands[i]);
-                return;
-            }
-        }
-
-        Instruction new_inst;
-
-        create_inst(instruction, operands, operand_count, &new_inst, r_array, inst_list, R);
-       
-        if (strcmp(instruction, "add") == 0) {
-            r_add(&r_array[get_register_index(new_inst.params[0]->r.name)], 
-            &r_array[get_register_index(new_inst.params[1]->r.name)], 
-            &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        } else if (strcmp(instruction, "sub") == 0) {
-            r_sub(&r_array[get_register_index(new_inst.params[0]->r.name)], 
-            &r_array[get_register_index(new_inst.params[1]->r.name)], 
-            &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        } else if (strcmp(instruction, "mult") == 0) {
-            r_mult(&r_array[get_register_index(new_inst.params[0]->r.name)], 
-            &r_array[get_register_index(new_inst.params[1]->r.name)], 
-            &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        } else if (strcmp(instruction, "and") == 0) {
-            r_and(&r_array[get_register_index(new_inst.params[0]->r.name)], 
-            &r_array[get_register_index(new_inst.params[1]->r.name)], 
-            &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        } else if (strcmp(instruction, "or") == 0) {
-            r_or(&r_array[get_register_index(new_inst.params[0]->r.name)], 
-            &r_array[get_register_index(new_inst.params[1]->r.name)], 
-            &r_array[get_register_index(new_inst.params[2]->r.name)]);
-        } 
-
-        // Implement SLL logic
-
-
-    } else if (strcmp(instruction, "lw") == 0 || strcmp(instruction, "sw") == 0 || strcmp(instruction, "lui") == 0) {
-
-        // I-type: 1 register and 1 address
-        if (operand_count != 2) {
-            printf("Error: %s expects 2 operands, found %d\n", instruction, operand_count);
-            return;
-        }
-
-        if (!is_reg(operands[0])) {
-            printf("Error: %s first operand is not a valid register: %s\n", instruction, operands[0]);
-            return;
-        }
-
-        if (!is_address(operands[1])) {
-            printf("Error: %s second operand is not a valid address: %s\n", instruction, operands[1]);
-            return;
-        }
-
-    } else if (strcmp(instruction, "slti") == 0 || strcmp(instruction, "addi") == 0) {
-        
-        // I-type: 2 registers and 1 immediate
-        if (operand_count != 3) {
-            printf("Error: %s expects 3 operands, found %d\n", instruction, operand_count);
-            return;
-        }
-
-        if (!is_reg(operands[0]) || !is_reg(operands[1])) {
-            printf("Error: %s requires the first two operands to be registers.\n", instruction);
-            return;
-        }
-
-        if (!is_imm(operands[2])) {
-            printf("Error: %s requires the third operand to be an immediate: %s\n", operands[2]);
-            return;
-        }
-
-        Instruction new_inst;
-        create_inst(instruction, operands, operand_count, &new_inst, r_array, inst_list, I);
-
-        if (strcmp(instruction, "addi") == 0) {
-            i_addi(&r_array[get_register_index(operands[0])], &r_array[get_register_index(operands[1])], atoi(operands[2]));
-        }
-    // NO BRANCHING (for now)
-    // } else if (strcmp(instruction, "j") == 0 || strcmp(instruction, "jal") == 0) {
-    //     // J-type: 1 label
-    //     if (operand_count != 1) {
-    //         printf("Error: %s expects 1 operand, found %d\n", instruction, operand_count);
-    //         return;
-    //     }
-
-    //     if (!is_label(operands[0])) {
-    //         printf("Error: %s requires a label as the operand: %s\n", instruction, operands[0]);
-    //         return;
-    //     }    
-
-    } else {
-        printf("Error: Unknown instruction: %s\n", instruction);
-    }
-
-}
-
-// Pushes instruction to a linked-list of instructions, simulating some sort of call-stack for debugging purposes
-void create_inst(char *instruction, char **operands, int operand_count, 
-    Instruction *new_inst, Register *r_array, InstructionList *inst_list, InstructionType type) {
-    
-    strncpy(new_inst->opcode, instruction, sizeof(new_inst->opcode));
-    new_inst->opcode[sizeof(new_inst->opcode) - 1] = '\0';
-
-    if (type == R) {
-        new_inst->type = R;
-    } else if (type == I) {
-        new_inst->type = I;
-    } else {
-        new_inst->type = J;
-    }
-    
-    new_inst->param_count = operand_count;
-
-    // Param processing
-    if (type == R) {        
-
-        // 3 register-operations
-        if (operand_count == 3 && is_reg(operands[2])) {
-             
-            for (int i = 0; i < operand_count; i++) {
-
-                int reg_index = get_register_index(operands[i]); // Function to map register string to index
-
-                if (reg_index < 0) {
-                    printf("Error: Invalid register: %s\n", operands[i]);
-                    return;
-                }
-
-                new_inst->params[i][0].r = r_array[reg_index];
-
-            }
-        }
-
-        // Register, register, int
-        if (operand_count == 3 && is_imm(operands[2])) {
-
-            // Implement logic for SLL
-
-        }
-        
-
-    } else if (type == I) {
-
-        if (operand_count == 3 && is_imm(operands[2])) {
-            // Register, register, immediate
-            for (int i = 0; i < operand_count; i++) {
-
-                if (i < operand_count - 1) { // Process registers
-                    int reg_index = get_register_index(operands[i]);
-                    if (reg_index != -1) {
-                        new_inst->params[i][0].r = r_array[reg_index];
-                    } else {
-                        printf("Error: Invalid register %s\n", operands[i]);
-                    }
-                } else { // Process the immediate value
-                    new_inst->params[2][0].i = atoi(operands[i]);
-                }
-
-            }
-        }
-        
-    }
-
-    add_instruction(inst_list, new_inst);
-
-}
-
-// Used to test each token's parse
-void test_fn(char *token) {
-
-    if (is_data_field(token)) {
-        printf("Data field: %s\n", token);
-    }
-
-    if (is_directive(token)) {
-        printf("Directive: %s\n", token);
-    }
-
-    if (is_text_field(token)) {
-        printf("Text field: %s\n", token);
-    }
-
-    if (is_inst(token)) {
-        printf("Instruction: %s\n", token);
-    }
-    
-    if (is_label(token)) {
-        printf("Label: %s\n", token);
-    }
-
-    if (is_op(token)) {
-        printf("Operand: %s\n", token);
-    }
-
-    if (is_address(token)) {
-        printf("Address: %s\n", token);
-    }
 
 }

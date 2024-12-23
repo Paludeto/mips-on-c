@@ -7,30 +7,30 @@
 typedef enum InstructionType {
     R,
     I,
-    J
+    J,
+    UNKNOWN
 } InstructionType;
 
-// Operands for specified R and I instructions
-typedef struct Operand {
-    Register r;
-    int32_t i; 
-} Operand;
-
 typedef struct Instruction {
-    char opcode[10]; 
+    char *name; 
+    char **operands;
     InstructionType type;
-    Operand params[3][20];
-    int param_count;
+    int op_count;
 } Instruction;
 
-// Branching (?) not sure if we'll implement it
-typedef struct Label {
-    char name[256];
-    uint32_t line;
-} Label;
+// For future use with command pattern
+typedef struct InstructionTable {
+    char *name;
+    InstructionType type;
+    int op_count;
+    void (*executor)(char **operands, Register *r_array);  
+} InstructionTable;
 
 void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);
+
+void execute_add(char **operands, Register *r_array);
+void execute_sub(char **operands, Register *r_array);
 
 // R-Type instructions
 void r_add(Register *rs, Register *rt, Register *rd);

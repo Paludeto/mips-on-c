@@ -8,6 +8,16 @@
 #include "instruction.h"
 #include "instruction_list.h"
 
+// Function prototypes
+InstructionTable *find_instruction(const char *name);
+Instruction *create_instruction(const char *name, char **operands, int op_count);
+void free_instruction(Instruction *inst);
+bool validate_operands(const InstructionTable *inst_def, char **operands, int operand_count);
+void validate_and_execute(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list);
+
+// Execution functions
+int get_register_index(const char *reg);
+
 void tokenize_line(char *line, Register *r_array, InstructionList *inst_list);
 bool is_reg(const char *token);
 bool is_label(const char *token);
