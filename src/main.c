@@ -28,8 +28,6 @@ int main() {
     r_array[11].value = 1;
     r_array[12].value = 1;
 
-    printf("Before 'and': $t3 = %d, $t4 = %d, $t5 = %d\n", r_array[11].value, r_array[12].value, r_array[13].value);
-
     tokenize_line(add, r_array, &inst_list);
     tokenize_line(sub, r_array, &inst_list);
     tokenize_line(mult, r_array, &inst_list);
