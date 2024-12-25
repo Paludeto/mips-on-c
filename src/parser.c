@@ -51,7 +51,25 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
         printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
         return false;
     }
-    
+
+    if (inst_def->type == R) {  
+
+        // Checks first two operands are registers
+        if (get_register_index(operands[0]) == -1 || get_register_index(operands[1]) == -1) {
+            printf("Error: Invalid register(s) for instruction %s\n", inst_def->name);
+            return false;
+        }
+
+        // Checks if third operand is a register or int value
+        if (get_register_index(operands[2]) == -1 && !is_imm(operands[2])) {
+            printf("Error: Invalid register for instruction %s\n", inst_def->name);
+            return false;
+        }
+
+        return true;
+
+    }
+
     return true;
 
 }
@@ -74,6 +92,8 @@ void validate_and_execute(const char *instruction, char **operands, int operand_
     Instruction *inst = create_instruction(instruction, operands, operand_count);
 
     inst_def->executor(inst->operands, r_array);
+    
+    // Adds instruction to linked-list
     add_instruction(inst_list, inst);
 
 }

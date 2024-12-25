@@ -14,6 +14,8 @@ void init_registers(Register *r_arr) {
         r_arr[i].number = i;
     }
 
+    r_arr[0].value = 0; // $zero
+    
 }
 
 // Obtains register index

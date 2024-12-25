@@ -24,9 +24,6 @@ typedef struct Instruction {
 void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);
 
-void execute_add(char **operands, Register *r_array);
-void execute_sub(char **operands, Register *r_array);
-
 // R-Type instructions
 void r_add(Register *rs, Register *rt, Register *rd);
 void r_sub(Register *rs, Register *rt, Register *rd);
@@ -43,6 +40,8 @@ void i_lui(Register *rt, int16_t imm);
 void execute_add(char **operands, Register *r_array);
 void execute_sub(char **operands, Register *r_array);
 void execute_mult(char **operands, Register *r_array);
+void execute_and(char **operands, Register *r_array);
+void execute_or(char **operands, Register *r_array);
 
 // Instruction creation and validation
 Instruction *find_instruction(const char *name);
