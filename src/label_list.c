@@ -7,11 +7,13 @@ void init_label_list(LabelList *list) {
 
 }
 
-Label *create_label(const char *name, int32_t *address) {
+Label *create_label(const char *name, LabelType type, int32_t *data, int32_t address) {
 
     Label *label = malloc(sizeof(Label));
 
+    label->type = type;
     label->name = strdup(name);  // Copy name
+    label->data = data;
     label->address = address;
 
     return label;
@@ -23,7 +25,7 @@ void add_label(LabelList *list, Label *label) {
 
     LabelNode *new_node = (LabelNode *)malloc(sizeof(LabelNode));
     new_node->label.name = strdup(label->name);  // Copy name
-    new_node->label.address = label->address;
+    new_node->label.data = label->data;
     new_node->next = list->head;
     list->head = new_node;
     list->size++;
@@ -32,10 +34,11 @@ void add_label(LabelList *list, Label *label) {
 
 // Print all labels in the list
 void print_label_list(LabelList *list) {
+
     LabelNode *current = list->head;
 
     while (current) {
-        printf("Label: %s, Address: %d\n", current->label.name, current->label.address);
+        printf("Label: %s, Address: %d\n", current->label.name, current->label.data);
         current = current->next;
     }
 

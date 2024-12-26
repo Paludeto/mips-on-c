@@ -57,7 +57,7 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
                 return;
             }
 
-            validate_data_field(line, args, arg_count, label_list);
+            validate_label(line, args, arg_count, label_list);
            
         }
 
@@ -169,33 +169,45 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
 
 }
 
-void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list) {
+void validate_label(const char *token, char **args, int arg_count, LabelList *label_list) {
 
-    if (!is_label(args[0]) || !is_directive(args[1])) {
-        printf("Error: Invalid data field\n");
+    if (!is_label(args[0])) {
+        printf("Error: Invalid label name\n");
         return;
     }
 
-    __int32_t *memchunk = malloc(sizeof(__int32_t)* (arg_count - 2));
+    if (is_directive(args[1])) {
 
-    if (strcmp(args[1], ".word") == 0) {
+        if (strcmp(args[1], ".word") == 0) {
 
-        for (int i = 2; i < arg_count; i++) {
+            __int32_t *memchunk = malloc(sizeof(__int32_t) * (arg_count - 2));
 
-            if (!is_imm(args[i])) {
-                printf("Error: Invalid immediate value\n");
-                free(memchunk);
+            if (memchunk == NULL) {
+                printf("Error: Memory allocation failed\n");
                 return;
-            } 
+            }
 
-            memchunk[i - 2] = atoi(args[i]);
+            for (int i = 2; i < arg_count; i++) {
+                if (!is_imm(args[i])) {
+                    printf("Error: Invalid immediate value\n");
+                    free(memchunk);
+                    return;
+                }
+                memchunk[i - 2] = atoi(args[i]);
+            }
+            
+            //Address is 0 because it's stored in data
+            Label *newLabel = create_label(args[0], DATA, memchunk, 0);
+            add_label(label_list, newLabel);
 
+        } else {
+            printf("Error: Unsupported directive\n");
         }
 
+    } else {
+        printf("Error: Invalid data field\n");
+        return;
     }
-
-    Label *newLabel = create_label(args[0], memchunk);
-    add_label(label_list, newLabel);
 
 }
 
