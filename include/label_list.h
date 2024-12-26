@@ -5,17 +5,10 @@
 #include <string.h>
 #include <stdio.h>
 
-typedef enum LabelType {
-    CODE,
-    DATA
-} LabelType;
-
 // Definition of Label
 typedef struct Label {
     char *name;
-    int32_t *data;
-    int address;
-    LabelType type;
+    int32_t *address;
 } Label;
 
 // Node structure for Label list
@@ -32,7 +25,7 @@ typedef struct LabelList {
 
 // Function prototypes
 void init_label_list(LabelList *list);
-Label *create_label(const char *name, LabelType type, int32_t *data, int32_t address);
+Label *create_label(const char *name, int32_t *address);
 void add_label(LabelList *list, Label *label);
 void print_label_list(LabelList *list);
 void free_label_list(LabelList *list);
