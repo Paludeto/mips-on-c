@@ -53,19 +53,65 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
     }
 
     if (inst_def->type == R) {  
+        
+        if (operand_count == 3) { 
+            // Checks first two operands are registers
+            if (get_register_index(operands[0]) == -1 || get_register_index(operands[1]) == -1) {
+                printf("Error: Invalid register(s) for instruction %s\n", inst_def->name);
+                return false;
+            }
 
-        // Checks first two operands are registers
-        if (get_register_index(operands[0]) == -1 || get_register_index(operands[1]) == -1) {
-            printf("Error: Invalid register(s) for instruction %s\n", inst_def->name);
-            return false;
+            // Checks if third operand is a register or int value
+            if (get_register_index(operands[2]) == -1 || !is_imm(operands[2])) {
+                printf("Error: Invalid register for instruction %s\n", inst_def->name);
+                return false;
+            }
+
+            return true;
         }
 
-        // Checks if third operand is a register or int value
-        if (get_register_index(operands[2]) == -1 && !is_imm(operands[2])) {
-            printf("Error: Invalid register for instruction %s\n", inst_def->name);
-            return false;
-        }
+        if (operand_count == 2) {
+            
+            if (get_register_index(operands[0]) == -1 || get_register_index(operands[1]) == -1) {
+                printf("Error: Invalid register(s) for instruction %s\n", inst_def->name);
+                return false;
+            }
 
+            return true;
+
+        }
+    } 
+
+    if (inst_def->type == I) {
+        
+        if (operand_count == 3) {
+
+            // Checks first two operands are registers
+            if (get_register_index(operands[0]) == -1 || get_register_index(operands[1]) == -1) {
+                printf("Error: Invalid register(s) for instruction %s\n", inst_def->name);
+                return false;
+            }
+
+            // Checks if third operand is an immediate value
+            if (!is_imm(operands[2])) {
+                printf("Error: Invalid immediate value for instruction %s\n", inst_def->name);
+                return false;
+            }
+
+            return true;
+
+        } 
+
+        if (operand_count == 2) {
+
+            if (get_register_index(operands[0]) == -1 || !is_imm(operands[1])) {
+                return false;
+            }
+
+            return true;
+
+        }
+    
         return true;
 
     }

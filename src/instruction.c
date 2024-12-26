@@ -9,6 +9,9 @@ Instruction table[] = {
     {"and", NULL, R, 3, execute_and},
     {"or", NULL, R, 3, execute_or},
     {"sll", NULL, R, 3, execute_sll},
+    {"lui", NULL, I, 2, execute_lui},
+    {"addi", NULL, I, 3, execute_addi},
+    {"move", NULL, R, 2, execute_move},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
@@ -87,6 +90,40 @@ void execute_sll(char **operands, Register *r_array) {
     int shamt = atoi(operands[2]);
 
     r_sll(&r_array[rt], &r_array[rd], shamt);
+
+}
+
+void execute_lui(char **operands, Register *r_array) {
+
+    printf("Executing LUI with operands %s, %s\n", operands[0], operands[1]);
+
+    int rt = get_register_index(operands[0]);
+    int imm = atoi(operands[1]);
+
+    i_lui(&r_array[rt], imm);
+
+}
+
+void execute_addi(char **operands, Register *r_array) {
+
+    printf("Executing ADDI with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rs = get_register_index(operands[0]);
+    int rt = get_register_index(operands[1]);
+    int imm = atoi(operands[2]);
+
+    i_addi(&r_array[rs], &r_array[rt], imm);
+
+}
+
+void execute_move(char **operands, Register *r_array) {
+
+    printf("Executing MOVE with operands %s, %s\n", operands[0], operands[1]);
+
+    int rd = get_register_index(operands[0]);
+    int rs = get_register_index(operands[1]);
+
+    move(&r_array[rd], &r_array[rs]);
 
 }
 
@@ -190,5 +227,11 @@ void i_addi(Register *rs, Register *rt, int imm) {
 void i_lui(Register *rt, int16_t imm) {
 
     rt->value = (int32_t)imm << 16; // rt = imm << 16 (upper 16 bits)
+
+}
+
+void move(Register *rd, Register *rs) {
+
+    rd->value = rs->value;
 
 }
