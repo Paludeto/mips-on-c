@@ -14,6 +14,7 @@ int main() {
     char mult[] = "mult $t0, $t1, $t2\n";   // $t0 = $t1 * $t2 (2)
     char and[] = "and $t5, $t3, $t4\n"; // $t3 = $t4 & $t5 (1)
     char or[] = "or $t6, $t3, $t4\n"; // $t6 = $t3 | $t4 (1)
+    char sll[] = "sll $t7, $t0, 2\n"; // $t7 = $t0 << 2 (t7 = 8)
 
     Register r_array[32];
     InstructionList inst_list;
@@ -33,6 +34,7 @@ int main() {
     tokenize_line(mult, r_array, &inst_list);
     tokenize_line(and, r_array, &inst_list);
     tokenize_line(or, r_array, &inst_list);
+    tokenize_line(sll, r_array, &inst_list);
 
 
     // Unused for now
@@ -44,6 +46,7 @@ int main() {
     // R-type bitwise
     printf("Value of %s: %d\n", r_array[13].name, r_array[13].value);
     printf("Value of %s: %d\n", r_array[14].name, r_array[14].value);
+    printf("Value of %s: %d\n", r_array[15].name, r_array[15].value);
     
     return 0;
 

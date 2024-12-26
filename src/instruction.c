@@ -8,6 +8,7 @@ Instruction table[] = {
     {"mult", NULL, R, 3, execute_mult},
     {"and", NULL, R, 3, execute_and},
     {"or", NULL, R, 3, execute_or},
+    {"sll", NULL, R, 3, execute_sll},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
@@ -74,6 +75,18 @@ void execute_or(char **operands, Register *r_array) {
     int rt = get_register_index(operands[2]);
 
     r_or(&r_array[rs], &r_array[rt], &r_array[rd]);
+
+}
+
+void execute_sll(char **operands, Register *r_array) {
+
+    printf("Executing SLL with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rd = get_register_index(operands[0]);
+    int rt = get_register_index(operands[1]);
+    int shamt = atoi(operands[2]);
+
+    r_sll(&r_array[rt], &r_array[rd], shamt);
 
 }
 
