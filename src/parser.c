@@ -1,5 +1,9 @@
 #include "parser.h"
 
+// this crap should be temporary until we figure out how to modularize it
+#define MAX_OP 4
+#define MAX_DIR 100
+
 void parseFile(char *file_name, Instruction *inst_arr, Register *r_array) {
 
     FILE *fp = fopen(file_name, "r");
@@ -13,7 +17,7 @@ void parseFile(char *file_name, Instruction *inst_arr, Register *r_array) {
 
 }
 
-void tokenize_line(char *line, Register *r_array, InstructionList *inst_list) {
+void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
 
     const char delimiters[] = " \t,\n"; // Define delimiters
     char *token = strtok(line, delimiters); // Get the first token
@@ -24,16 +28,37 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list) {
         if (find_instruction(token) != NULL) {
             // Parse operands
             char *instruction = token;
-            char *operands[10]; // Assume a maximum of 10 operands
+            char *operands[MAX_OP]; // Assume a maximum of 10 operands
             int operand_count = 0;
-
+        
             while ((token = strtok(NULL, delimiters)) != NULL) {
+
                 operands[operand_count++] = token;
+
             }
 
-            // Validate instruction syntax and execute it (wip)
-            validate_and_execute(instruction, operands, operand_count, r_array, inst_list);
+            // Validate instruction syntax and execute it
+            validate_execute_inst(instruction, operands, operand_count, r_array, inst_list);
 
+        }
+
+        // This is where this POS gets hacky
+        if (is_data_field(token)) {
+
+            char *args[MAX_DIR];
+            int arg_count = 0;
+
+            while ((token = strtok(NULL, delimiters)) != NULL) {
+                args[arg_count++] = token;
+            }   // adds label + directives to an array
+
+            if (arg_count > MAX_DIR) {
+                printf("Too many directives\n");
+                return;
+            }
+
+            validate_data_field(line, args, arg_count, label_list);
+           
         }
 
         // test_fn(token); tests tokenization
@@ -121,7 +146,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 }
 
 // Validates and executes an instruction
-void validate_and_execute(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
+void validate_execute_inst(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
 
     Instruction *inst_def = find_instruction(instruction);
 
@@ -141,6 +166,36 @@ void validate_and_execute(const char *instruction, char **operands, int operand_
     
     // Adds instruction to linked-list
     add_instruction(inst_list, inst);
+
+}
+
+void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list) {
+
+    if (!is_label(args[0]) || !is_directive(args[1])) {
+        printf("Error: Invalid data field\n");
+        return;
+    }
+
+    __int32_t *memchunk = malloc(sizeof(__int32_t)* (arg_count - 2));
+
+    if (strcmp(args[1], ".word") == 0) {
+
+        for (int i = 2; i < arg_count; i++) {
+
+            if (!is_imm(args[i])) {
+                printf("Error: Invalid immediate value\n");
+                free(memchunk);
+                return;
+            } 
+
+            memchunk[i - 2] = atoi(args[i]);
+
+        }
+
+    }
+
+    Label *newLabel = create_label(args[0], memchunk);
+    add_label(label_list, newLabel);
 
 }
 

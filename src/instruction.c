@@ -16,7 +16,6 @@ Instruction table[] = {
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
-
 // TO-DO: implement behavior
 void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);

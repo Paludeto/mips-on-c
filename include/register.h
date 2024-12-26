@@ -2,6 +2,7 @@
 #define REGISTER_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #define REG_NUM 32

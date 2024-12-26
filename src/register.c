@@ -1,5 +1,7 @@
 #include <register.h>
 
+// Maybe make register array global in here?
+
 void init_registers(Register *r_arr) {
 
     const char *names[] = {

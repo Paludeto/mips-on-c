@@ -10,22 +10,20 @@ int main() {
 
     Register r_array[32];
     InstructionList inst_list;
+    LabelList label_list;
 
-    char line1[] = "move $t0, $zero";
-    char line2[] = "move $t1, $zero";
-    char line3[] = "addi $t1, $t1, 5";
-    char line4[] = "slt $t2, $t0, $t1";
+    char line1[] = ".data\ntest: .word 1, 2, 3, 4\n";
 
     init_instruction_list(&inst_list);
     init_registers(r_array);
+    init_label_list(&label_list);
 
-    tokenize_line(line1, r_array, &inst_list);
-    tokenize_line(line2, r_array, &inst_list);
-    tokenize_line(line3, r_array, &inst_list);
-    tokenize_line(line4, r_array, &inst_list);
+    tokenize_line(line1, r_array, &inst_list, &label_list);
 
-    // R-type arithmetics
-    printf("Value of %s: %d\n", r_array[10].name, r_array[10].value);
+    while (label_list.head) {
+        printf("Label: %s, Address: %d\n", label_list.head->label.name, label_list.head->label.address[0]);
+        label_list.head = label_list.head->next;
+    }
     
     return 0;
 

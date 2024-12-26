@@ -5,14 +5,15 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "instruction.h"
 #include "instruction_list.h"
+#include "label_list.h"
 
 // Instruction validation and execution
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count);
-void validate_and_execute(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list);
+void validate_execute_inst(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list);
+void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_table);
 
-void tokenize_line(char *line, Register *r_array, InstructionList *inst_list);
+void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_table);
 
 // Check tokens
 bool is_label(const char *token);
