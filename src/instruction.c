@@ -12,6 +12,7 @@ Instruction table[] = {
     {"lui", NULL, I, 2, execute_lui},
     {"addi", NULL, I, 3, execute_addi},
     {"move", NULL, R, 2, execute_move},
+    {"slt", NULL, R, 3, execute_slt},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
@@ -127,6 +128,30 @@ void execute_move(char **operands, Register *r_array) {
 
 }
 
+void execute_slt(char **operands, Register *r_array) {
+
+    printf("Executing SLT with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rd = get_register_index(operands[0]);
+    int rs = get_register_index(operands[1]);
+    int rt = get_register_index(operands[2]);
+
+    slt(&r_array[rs], &r_array[rt], &r_array[rd]);
+
+}
+
+void execute_slti(char **operands, Register *r_array) {
+
+    printf("Executing SLTI with operands %s, %s, %s\n", operands[0], operands[1], operands[2]);
+
+    int rs = get_register_index(operands[0]);
+    int rt = get_register_index(operands[1]);
+    int imm = atoi(operands[2]);
+
+    slti(&r_array[rs], &r_array[rt], imm);
+
+}
+
 // Checks if instruction is in the table
 Instruction *find_instruction(const char *name) {
 
@@ -163,11 +188,15 @@ void free_instruction(Instruction *inst) {
     }
 
     if (inst->operands) {
+
         for (int i = 0; i < inst->op_count; i++) {
+
             if (inst->operands[i]) {
                 free(inst->operands[i]);
             }
+
         }
+
         free(inst->operands);
     }
 
@@ -233,5 +262,17 @@ void i_lui(Register *rt, int16_t imm) {
 void move(Register *rd, Register *rs) {
 
     rd->value = rs->value;
+
+}
+
+void slt(Register *rs, Register *rt, Register *rd) {
+
+    rd->value = rs->value < rt->value ? 1 : 0;
+
+}
+
+void slti(Register *rs, Register *rt, int imm) {
+
+    rt->value = rs->value < imm ? 1 : 0;
 
 }

@@ -62,7 +62,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             }
 
             // Checks if third operand is a register or int value
-            if (get_register_index(operands[2]) == -1 || !is_imm(operands[2])) {
+            if (get_register_index(operands[2]) == -1 && !is_imm(operands[2])) {
                 printf("Error: Invalid register for instruction %s\n", inst_def->name);
                 return false;
             }

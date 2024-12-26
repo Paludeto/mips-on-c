@@ -32,6 +32,8 @@ void r_and(Register *rs, Register *rt, Register *rd);
 void r_or(Register *rs, Register *rt, Register *rd);
 void r_sll(Register *rt, Register *rd, int shamt);
 void move(Register *rd, Register *rs);
+void slt(Register *rs, Register *rt, Register *rd);
+void slti(Register *rs, Register *rt, int imm);
 
 // I-Type instructions
 void i_addi(Register *rs, Register *rt, int imm);
@@ -47,6 +49,8 @@ void execute_sll(char **operands, Register *r_array);
 void execute_lui(char **operands, Register *r_array);
 void execute_addi(char **operands, Register *r_array);
 void execute_move(char **operands, Register *r_array);
+void execute_slt(char **operands, Register *r_array);
+void execute_slti(char **operands, Register *r_array);
 
 // Instruction creation and validation
 Instruction *find_instruction(const char *name);
