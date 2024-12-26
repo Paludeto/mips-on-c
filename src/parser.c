@@ -192,6 +192,9 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
 
         }
 
+    } else {
+        printf("Invalid directive\n");
+        return;
     }
 
     Label *newLabel = create_label(args[0], memchunk);
