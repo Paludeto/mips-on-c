@@ -41,9 +41,9 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
             validate_execute_inst(instruction, operands, operand_count, r_array, inst_list);
 
         }
-
+        
         // This is where this POS gets hacky
-        if (is_data_field(token)) {
+        if (token != NULL && is_data_field(token)) {
 
             char *args[MAX_DIR];
             int arg_count = 0;
@@ -61,9 +61,8 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
            
         }
 
-        // test_fn(token); tests tokenization
-
-        token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off
+      
+        token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off       
 
     }
 
