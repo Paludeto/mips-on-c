@@ -14,6 +14,7 @@ Instruction table[] = {
     {"move", NULL, R, 2, execute_move, NULL},
     {"slt", NULL, R, 3, execute_slt, NULL},
     {"slti", NULL, I, 3, execute_slti, NULL},
+    {"la", NULL, P, 2, NULL, execute_la},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 

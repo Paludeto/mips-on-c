@@ -41,6 +41,24 @@ void print_label_list(LabelList *list) {
 
 }
 
+Label *find_label(LabelList *list, const char *name) {
+
+    LabelNode *current = list->head;
+
+    while (current != NULL) {
+
+        if (strcmp(current->label.name, name) == 0) {
+            return &current->label; // Return the matching label
+        }
+
+        current = current->next;
+
+    }
+
+    return NULL; // Return NULL if no match is found
+
+}
+
 // Free all memory associated with the label list
 void free_label_list(LabelList *list) {
 

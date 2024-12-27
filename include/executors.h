@@ -2,6 +2,7 @@
 #define EXECUTORS_H
 
 #include "register.h"
+#include "label_list.h"
 #include <stdio.h>
 
 // Instruction executors
@@ -16,5 +17,6 @@ void execute_addi(char **operands, Register *r_array);
 void execute_move(char **operands, Register *r_array);
 void execute_slt(char **operands, Register *r_array);
 void execute_slti(char **operands, Register *r_array);
+void execute_la(char **operands, Register *r_array, LabelList *label_list);
 
 #endif // EXECUTORS_H

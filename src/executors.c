@@ -137,3 +137,20 @@ void execute_slti(char **operands, Register *r_array) {
     r_array[rt].value = r_array[rs].value < imm ? 1 : 0; // rt = (rs < imm) ? 1 : 0
 
 }
+
+void execute_la(char **operands, Register *r_array, LabelList *label_list) {
+
+    printf("Executing LA with operands %s, %s\n", operands[0], operands[1]);
+
+    int rt = get_register_index(operands[0]);
+    Label *label = find_label(label_list, operands[1]);
+
+    // Null check if label is not found
+    if (label == NULL) {
+        printf("Error: Label %s not found\n", operands[1]);
+        return;
+    }
+
+    r_array[rt].value = (intptr_t)label->address; // rt = address of label
+
+}
