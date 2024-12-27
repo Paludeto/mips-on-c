@@ -38,10 +38,10 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
             }
 
             // Validate instruction syntax and execute it
-            validate_execute_inst(instruction, operands, operand_count, r_array, inst_list);
+            validate_execute_inst(instruction, operands, operand_count, r_array, inst_list, label_list);
 
         }
-        
+       
         // This is where this POS gets hacky
         if (token != NULL && is_data_field(token)) {
 
@@ -140,12 +140,20 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
     }
 
+    if (inst_def->type == P) {
+        
+        if (operand_count == 2 && get_register_index(operands[0]) != -1) {
+            return true;
+        }
+
+    }
+
     return true;
 
 }
 
 // Validates and executes an instruction
-void validate_execute_inst(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list) {
+void validate_execute_inst(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
 
     Instruction *inst_def = find_instruction(instruction);
 
@@ -159,9 +167,13 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
         return;
     }
 
-    Instruction *inst = create_instruction(instruction, operands, operand_count);
+    Instruction *inst = create_instruction(instruction, inst_def->type, operands, operand_count);
 
-    inst_def->basic_executor(inst->operands, r_array);
+    if (inst_def->basic_executor != NULL) {
+        inst_def->basic_executor(inst->operands, r_array);
+    } else if (inst_def->label_executor != NULL) {
+        inst_def->label_executor(inst->operands, r_array, label_list);
+    }
     
     // Adds instruction to linked-list
     add_instruction(inst_list, inst);
@@ -196,7 +208,15 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
         return;
     }
 
-    Label *newLabel = create_label(args[0], memchunk);
+    // Takes ':' off the end of the label
+    size_t len = strlen(args[0]);
+    char *stripped_name = strdup(args[0]); // Duplicate the string
+
+    if (stripped_name[len - 1] == ':') {
+        stripped_name[len - 1] = '\0'; // Remove the trailing ':'
+    }
+
+    Label *newLabel = create_label(stripped_name, memchunk);
     add_label(label_list, newLabel);
 
 }
@@ -335,7 +355,7 @@ bool is_address(const char *token) {
 
 bool is_data_field(const char *token) {
 
-    return strcasecmp(token, ".data") == 0;
+    return strcasecmp(token, ".data:") == 0;
 
 }
 

@@ -54,10 +54,11 @@ void add_instruction(InstructionList *list, struct Instruction *inst) {
 }
 
 // Creates instruction object
-Instruction *create_instruction(const char *name, char **operands, int op_count) {
+Instruction *create_instruction(const char *name, InstructionType type, char **operands, int op_count) {
 
     Instruction *new_inst = malloc(sizeof(Instruction));
     new_inst->name = strdup(name);
+    new_inst->type = type;
     new_inst->operands = malloc(sizeof(char *) * op_count);
 
     for (int i = 0; i < op_count; i++) {
@@ -68,7 +69,6 @@ Instruction *create_instruction(const char *name, char **operands, int op_count)
 
 }
 
-// Print all instructions in the list
 void print_instruction_list(const InstructionList *list) {
 
     Node *current = list->head;
