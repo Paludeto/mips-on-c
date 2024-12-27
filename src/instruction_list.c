@@ -3,16 +3,17 @@
 
 // Instruction table
 Instruction table[] = {
-    {"add", NULL, R, 3, execute_add},
-    {"sub", NULL, R, 3, execute_sub},
-    {"mult", NULL, R, 3, execute_mult},
-    {"and", NULL, R, 3, execute_and},
-    {"or", NULL, R, 3, execute_or},
-    {"sll", NULL, R, 3, execute_sll},
-    {"lui", NULL, I, 2, execute_lui},
-    {"addi", NULL, I, 3, execute_addi},
-    {"move", NULL, R, 2, execute_move},
-    {"slt", NULL, R, 3, execute_slt},
+    {"add", NULL, R, 3, execute_add, NULL},
+    {"sub", NULL, R, 3, execute_sub, NULL},
+    {"mult", NULL, R, 3, execute_mult, NULL},
+    {"and", NULL, R, 3, execute_and, NULL},
+    {"or", NULL, R, 3, execute_or, NULL},
+    {"sll", NULL, R, 3, execute_sll, NULL},
+    {"lui", NULL, I, 2, execute_lui, NULL},
+    {"addi", NULL, I, 3, execute_addi, NULL},
+    {"move", NULL, R, 2, execute_move, NULL},
+    {"slt", NULL, R, 3, execute_slt, NULL},
+    {"slti", NULL, I, 3, execute_slti, NULL},
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 

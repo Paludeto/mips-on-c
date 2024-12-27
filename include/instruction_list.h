@@ -5,11 +5,13 @@
 #include <string.h>
 #include <stdio.h>
 #include "register.h"
+#include "label_list.h"
 
 typedef enum InstructionType {
     R,
     I,
     J,
+    P,
     UNKNOWN
 } InstructionType;
 
@@ -20,9 +22,9 @@ typedef struct Instruction {
     char **operands;
     InstructionType type;
     int op_count;
-
     // Generalize second parameter to take label into account
-    void (*executor)(char **operands, Register *r_array);  
+    void (*basic_executor)(char **operands, Register *r_array); 
+    void (*label_executor)(char **operands, Register *r_array, LabelList *label_list);
 } Instruction;
 
 typedef struct Node {

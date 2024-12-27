@@ -161,7 +161,7 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
 
     Instruction *inst = create_instruction(instruction, operands, operand_count);
 
-    inst_def->executor(inst->operands, r_array);
+    inst_def->basic_executor(inst->operands, r_array);
     
     // Adds instruction to linked-list
     add_instruction(inst_list, inst);
@@ -202,33 +202,33 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
 }
 
 // Used to test each token's parse
-void test_fn(char *token) {
+// void test_fn(char *token) {
 
-    if (is_data_field(token)) {
-        printf("Data field: %s\n", token);
-    }
+//     if (is_data_field(token)) {
+//         printf("Data field: %s\n", token);
+//     }
 
-    if (is_directive(token)) {
-        printf("Directive: %s\n", token);
-    }
+//     if (is_directive(token)) {
+//         printf("Directive: %s\n", token);
+//     }
 
-    if (is_text_field(token)) {
-        printf("Text field: %s\n", token);
-    }
+//     if (is_text_field(token)) {
+//         printf("Text field: %s\n", token);
+//     }
     
-    if (is_label(token)) {
-        printf("Label: %s\n", token);
-    }
+//     if (is_label(token)) {
+//         printf("Label: %s\n", token);
+//     }
 
-    if (is_op(token)) {
-        printf("Operand: %s\n", token);
-    }
+//     if (is_op(token)) {
+//         printf("Operand: %s\n", token);
+//     }
 
-    if (is_address(token)) {
-        printf("Address: %s\n", token);
-    }
+//     if (is_address(token)) {
+//         printf("Address: %s\n", token);
+//     }
 
-}
+// }
 
 bool is_label(const char *token) {
 
