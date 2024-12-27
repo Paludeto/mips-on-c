@@ -32,6 +32,7 @@ void add_label(LabelList *list, Label *label) {
 
 // Print all labels in the list
 void print_label_list(LabelList *list) {
+
     LabelNode *current = list->head;
 
     while (current) {
@@ -59,16 +60,38 @@ Label *find_label(LabelList *list, const char *name) {
 
 }
 
+void free_label(Label *label) {
+
+    if (label) {
+        free(label->name);
+        free(label);
+    }
+    
+}
+
 // Free all memory associated with the label list
 void free_label_list(LabelList *list) {
 
     LabelNode *current = list->head;
 
     while (current) {
+
         LabelNode *next = current->next;
-        free(current->label.name);  // Free the copied name
+
+        // Free the label's name
+        if (current->label.name) {
+            free(current->label.name);
+        }
+
+        // Free the label's address (if dynamically allocated)
+        if (current->label.address) {
+            free(current->label.address);
+        }
+
+        // Free the node itself
         free(current);
         current = next;
+         
     }
 
     list->head = NULL;

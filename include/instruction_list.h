@@ -41,6 +41,7 @@ typedef struct InstructionList {
 void init_instruction_list(InstructionList *list);
 void add_instruction(InstructionList *list, struct Instruction *inst);
 void print_instruction_list(const InstructionList *list);
+void free_instruction(Instruction *inst);
 void free_instruction_list(InstructionList *list);
 Instruction *create_instruction(const char *name, InstructionType type, char **operands, int op_count);
 Instruction *find_instruction(const char *name);

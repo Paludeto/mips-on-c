@@ -177,7 +177,7 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
     
     // Adds instruction to linked-list
     add_instruction(inst_list, inst);
-
+    
 }
 
 void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list) {
@@ -218,6 +218,9 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
 
     Label *newLabel = create_label(stripped_name, memchunk);
     add_label(label_list, newLabel);
+    
+    free_label(newLabel);
+    free(stripped_name);
 
 }
 

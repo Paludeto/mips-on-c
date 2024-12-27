@@ -59,6 +59,7 @@ Instruction *create_instruction(const char *name, InstructionType type, char **o
     Instruction *new_inst = malloc(sizeof(Instruction));
     new_inst->name = strdup(name);
     new_inst->type = type;
+    new_inst->op_count = op_count;
     new_inst->operands = malloc(sizeof(char *) * op_count);
 
     for (int i = 0; i < op_count; i++) {
@@ -78,13 +79,43 @@ void print_instruction_list(const InstructionList *list) {
 
         struct Instruction *inst = current->instruction;
         printf("Instruction %d: %s", index++, inst->name);
+
         for (int i = 0; i < inst->op_count; i++) {
             printf(" %s", inst->operands[i]);
         }
+         
         printf(", type %d\n", inst->type);
         current = current->next;
 
     }
+
+}
+
+void free_instruction(Instruction *inst) {
+
+    if (!inst) return;
+
+    // Free dynamically allocated name
+    if (inst->name) {
+        free(inst->name);
+    }
+
+    // Free dynamically allocated operands
+    if (inst->operands) {
+
+        for (int i = 0; i < inst->op_count; i++) {
+
+            if (inst->operands[i]) {
+                free(inst->operands[i]);
+            }
+
+        }
+
+        free(inst->operands);
+        
+    }
+
+    free(inst);
 
 }
 
@@ -96,6 +127,11 @@ void free_instruction_list(InstructionList *list) {
     while (current != NULL) {
 
         Node *temp = current;
+
+        // Free the instruction
+        free_instruction(current->instruction);
+
+        // Free the node itself
         current = current->next;
         free(temp);
 
