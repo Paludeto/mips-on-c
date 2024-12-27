@@ -20,6 +20,8 @@ typedef struct Instruction {
     char **operands;
     InstructionType type;
     int op_count;
+
+    // Generalize second parameter to take label into account
     void (*executor)(char **operands, Register *r_array);  
 } Instruction;
 

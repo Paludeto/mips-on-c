@@ -23,7 +23,11 @@ int main() {
     tokenize_line(line2, r_array, &inst_list, &label_list);
 
     printf("%s: %d\n", r_array[8].name, r_array[8].value);
-    
+    print_instruction_list(&inst_list);
+
+    free_instruction_list(&inst_list);
+    free_label_list(&label_list);
+
     return 0;
 
 }
