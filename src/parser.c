@@ -126,7 +126,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
         } 
 
-        if (operand_count == 2 && strcmp(inst_def->name, "lw") != 0) {
+        if (operand_count == 2 && strcmp(inst_def->name, "lw") != 0 && strcmp(inst_def->name, "sw") != 0) {
 
             if (get_register_index(operands[0]) == -1 || !is_imm(operands[1])) {
                 return false;
@@ -134,7 +134,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
             return true;
 
-        } else if (operand_count == 2 && strcmp(inst_def->name, "lw") == 0) {
+        } else if (operand_count == 2 && (strcmp(inst_def->name, "lw") == 0 || strcmp(inst_def->name, "sw") == 0)) {
 
             if (get_register_index(operands[0]) == -1 || !is_address(operands[1])) {
                 return false;
@@ -216,7 +216,6 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
         return;
     }
 
-    // Takes ':' off the end of the label
     size_t len = strlen(args[0]);
     char *stripped_name = strdup(args[0]); // Duplicate the string
 
@@ -224,7 +223,6 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
         stripped_name[len - 1] = '\0'; // Remove the trailing ':'
     }
 
-    // List behaves differently, need to fix this so behavior is consistent accross the two lists
     Label *newLabel = create_label(stripped_name, memchunk);
     free(stripped_name);
 
