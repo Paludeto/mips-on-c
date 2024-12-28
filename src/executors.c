@@ -157,45 +157,39 @@ void execute_la(char **operands, Register *r_array, LabelList *label_list) {
 
 void execute_lw(char **operands, Register *r_array) {
 
-    // Get the register index for destination
+    printf("Executing LW with operands %s, %s\n", operands[0], operands[1]);
+
     int rt = get_register_index(operands[0]);
 
-    // Parse the offset value
+    // Parse offset and register from the second operand
     char *open_paren = strchr(operands[1], '(');
     char *close_paren = strchr(operands[1], ')');
 
-    // Extract offset
-    int offset = atoi(operands[1]); // Parses the numeric part before '('
-
-    // Extract the register name inside parentheses
-    size_t reg_len = close_paren - open_paren - 1; // Length of the register name
-    char *reg_name = malloc(reg_len + 1); // Allocate space for the register name
-
-    if (!reg_name) {
-        perror("Error: Memory allocation failed\n");
+    if (!open_paren || !close_paren) {
+        printf("Error: Invalid memory access syntax: %s\n", operands[1]);
         return;
     }
 
-    strncpy(reg_name, open_paren + 1, reg_len); // Copy the register name
-    reg_name[reg_len] = '\0'; // Null-terminate the string
+    // Extract the offset
+    int offset = atoi(operands[1]);
+
+    // Extract the base register name
+    char reg_name[8] = {0};
+    strncpy(reg_name, open_paren + 1, close_paren - open_paren - 1);
 
     // Get the base register index
-    int base_reg = get_register_index(reg_name);
-    if (base_reg == -1) {
-        printf("Error: Invalid base register %s\n", reg_name);
-        free(reg_name);
+    int base = get_register_index(reg_name);
+    if (base == -1) {
+        printf("Error: Invalid base register: %s\n", reg_name);
         return;
     }
 
-    // Simulate loading the word 
-    intptr_t memory_address = (intptr_t) r_array[base_reg].value + offset; // Calculate address
-    printf("Loading from address: %d into register %s\n", memory_address, operands[0]);
+    // Compute the effective address
+    intptr_t address = r_array[base].value + offset;
 
-    // Perform memory access
-    r_array[rt].value = *(int *)memory_address; 
-
-    free(reg_name); // Free allocated memory
-
+    // Load the value from the computed address into the target register
+    r_array[rt].value = *((int32_t *)address);
+    
 }
 
 void execute_sw(char **operands, Register *r_array) {

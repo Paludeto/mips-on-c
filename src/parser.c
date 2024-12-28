@@ -3,70 +3,76 @@
 // this crap should be temporary until we figure out how to modularize it
 #define MAX_OP 4
 #define MAX_DIR 100
+#define MAX_INPUT_SIZE 256
 
-void parseFile(char *file_name, Instruction *inst_arr, Register *r_array) {
-
+void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
     FILE *fp = fopen(file_name, "r");
+    char line[MAX_INPUT_SIZE];
+    char current_mode[16] = "";
 
     if (fp == NULL) {
         perror("File could not be opened\n");
         return;
     }
 
-    // TO-DO (file parsing)
-
-}
-
-void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
-
-    const char delimiters[] = " \t,\n"; // Define delimiters
-    char *token = strtok(line, delimiters); // Get the first token
-    
-    while (token != NULL) {
-        
-        // If token is an instruction
-        if (find_instruction(token) != NULL) {
-            // Parse operands
-            char *instruction = token;
-            char *operands[MAX_OP]; // Assume a maximum of 10 operands
-            int operand_count = 0;
-        
-            while ((token = strtok(NULL, delimiters)) != NULL) {
-
-                operands[operand_count++] = token;
-
-            }
-
-            // Validate instruction syntax and execute it
-            validate_execute_inst(instruction, operands, operand_count, r_array, inst_list, label_list);
-
-        }
-       
-        // This is where this POS gets hacky
-        if (token != NULL && is_data_field(token)) {
-
-            char *args[MAX_DIR];
-            int arg_count = 0;
-
-            while ((token = strtok(NULL, delimiters)) != NULL) {
-                args[arg_count++] = token;
-            }   // adds label + directives to an array
-
-            if (arg_count > MAX_DIR) {
-                printf("Too many directives\n");
-                return;
-            }
-
-            validate_data_field(line, args, arg_count, label_list);
-           
+    while (fgets(line, sizeof(line), fp)) {
+        // Remove newline characters
+        size_t len = strlen(line);
+        if (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+            line[len - 1] = '\0';
         }
 
-      
-        token = strtok(NULL, delimiters); // Get the next token from where previous strtok left off       
-
+        tokenize_line(line, r_array, inst_list, label_list, current_mode);
     }
 
+    fclose(fp);
 }
+
+void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode) {
+
+    const char delimiters[] = " \t,\n";
+    char *token = strtok(line, delimiters);
+
+    if (token == NULL) return; // Empty line
+
+    // Check for section markers
+    if (is_data_field(token)) {
+        strcpy(current_mode, ".data");
+        return;
+    } else if (is_text_field(token)) {
+        strcpy(current_mode, ".text");
+        return;
+    }
+
+    if (strcmp(current_mode, ".data") == 0) {
+        // Process `.data:` section
+        char *args[MAX_DIR];
+        int arg_count = 0;
+
+        while (token != NULL) {
+            args[arg_count++] = token;
+            token = strtok(NULL, delimiters);
+        }
+
+        if (arg_count > 0) {
+            validate_data_field(line, args, arg_count, label_list);
+        }
+    } else if (strcmp(current_mode, ".text") == 0) {
+        // Process `.text` section
+        if (find_instruction(token)) {
+            char *instruction = token;
+            char *operands[MAX_OP];
+            int operand_count = 0;
+
+            while ((token = strtok(NULL, delimiters)) != NULL) {
+                operands[operand_count++] = token;
+            }
+
+            validate_execute_inst(instruction, operands, operand_count, r_array, inst_list, label_list);
+        }
+    }
+}
+
 
 // TO-DO: be customized according to instruction type
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count) {
@@ -190,42 +196,67 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
 
 void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list) {
 
-    if (!is_label(args[0]) || !is_directive(args[1])) {
-        printf("Error: Invalid data field\n");
+    if (arg_count < 2) { // Minimum: label and directive
+        printf("Error: Insufficient arguments in data field\n");
         return;
     }
 
-    __int32_t *memchunk = malloc(sizeof(__int32_t)* (arg_count - 2));
+    // Validate the label
+    const char *label_name = args[0];
+    if (is_directive(args[0])) {
+        printf("Error: Missing label before directive: %s\n", args[0]);
+        return;
+    }
 
-    if (strcmp(args[1], ".word") == 0) {
+    // Validate the directive
+    if (!is_directive(args[1])) {
+        printf("Error: Invalid directive in data field: %s\n", args[1]);
+        return;
+    }
 
-        for (int i = 2; i < arg_count; i++) {
+    // Allocate memory for the data
+    int data_count = arg_count - 2;
+    __int32_t *memchunk = malloc(sizeof(__int32_t) * data_count);
+    if (!memchunk) {
+        printf("Error: Memory allocation failed for data field\n");
+        return;
+    }
 
-            if (!is_imm(args[i])) {
-                printf("Error: Invalid immediate value\n");
-                free(memchunk);
-                return;
-            } 
-
-            memchunk[i - 2] = atoi(args[i]);
-
+    // Parse and validate immediates
+    for (int i = 2; i < arg_count; i++) {
+        if (!is_imm(args[i])) {
+            printf("Error: Invalid immediate value: %s\n", args[i]);
+            free(memchunk);
+            return;
         }
+        memchunk[i - 2] = atoi(args[i]);
+    }
 
-    } else {
-        printf("Invalid directive\n");
+    // Remove trailing colon from label if it exists
+    size_t len = strlen(label_name);
+    char *stripped_name = strdup(label_name);
+    
+    if (!stripped_name) {
+        printf("Error: Memory allocation failed for label name\n");
+        free(memchunk);
         return;
     }
 
-    size_t len = strlen(args[0]);
-    char *stripped_name = strdup(args[0]); // Duplicate the string
-
-    if (stripped_name[len - 1] == ':') {
-        stripped_name[len - 1] = '\0'; // Remove the trailing ':'
+    if (len > 0 && stripped_name[len - 1] == ':') {
+        stripped_name[len - 1] = '\0';
     }
 
+    // Create and add the label
     Label *newLabel = create_label(stripped_name, memchunk);
-    free(stripped_name);
 
+    if (!newLabel) {
+        printf("Error: Failed to create label\n");
+        free(stripped_name);
+        free(memchunk);
+        return;
+    }
+
+    free(stripped_name);
     add_label(label_list, newLabel);
 
 }
@@ -236,10 +267,14 @@ bool is_label(const char *token) {
         return false;
     }
 
-    for (int i = 0; token[i] != '\0'; i++) {
-        if (token[i] == ':') {
-            return true;
-        }
+    // Check if the token is followed by a directive (e.g., ".word")
+    if (strchr(token, ':') != NULL) {
+        return true;
+    }
+
+    // Allow labels without a colon if followed by a directive
+    if (is_directive(token)) {
+        return true;
     }
 
     return false;
@@ -335,7 +370,7 @@ bool is_address(const char *token) {
 
 bool is_data_field(const char *token) {
 
-    return strcasecmp(token, ".data:") == 0;
+    return strcasecmp(token, ".data") == 0 || strcasecmp(token, ".data:") == 0;
 
 }
 
