@@ -25,7 +25,4 @@ bool is_data_field(const char *token);
 bool is_text_field(const char *token);
 bool is_directive(const char *token);
 
-// Test check
-void test_fn(char *token);
-
 #endif
