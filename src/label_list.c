@@ -22,8 +22,7 @@ Label *create_label(const char *name, int32_t *address) {
 void add_label(LabelList *list, Label *label) {
 
     LabelNode *new_node = (LabelNode *)malloc(sizeof(LabelNode));
-    new_node->label.name = strdup(label->name);  // Copy name
-    new_node->label.address = label->address;
+    new_node->label = label;
     new_node->next = list->head;
     list->head = new_node;
     list->size++;
@@ -36,7 +35,7 @@ void print_label_list(LabelList *list) {
     LabelNode *current = list->head;
 
     while (current) {
-        printf("Label: %s, Address: %d\n", current->label.name, current->label.address);
+        printf("Label: %s, Address: %d\n", current->label->name, current->label->address);
         current = current->next;
     }
 
@@ -48,8 +47,8 @@ Label *find_label(LabelList *list, const char *name) {
 
     while (current != NULL) {
 
-        if (strcmp(current->label.name, name) == 0) {
-            return &current->label; // Return the matching label
+        if (strcmp(current->label->name, name) == 0) {
+            return current->label; // Return the matching label
         }
 
         current = current->next;
@@ -60,38 +59,29 @@ Label *find_label(LabelList *list, const char *name) {
 
 }
 
-void free_label(Label *label) {
-
-    if (label) {
-        free(label->name);
-        free(label);
-    }
-    
-}
-
 // Free all memory associated with the label list
 void free_label_list(LabelList *list) {
 
     LabelNode *current = list->head;
 
     while (current) {
-
         LabelNode *next = current->next;
 
-        // Free the label's name
-        if (current->label.name) {
-            free(current->label.name);
-        }
-
-        // Free the label's address (if dynamically allocated)
-        if (current->label.address) {
-            free(current->label.address);
+        // Free the label's fields
+        if (current->label) {
+            if (current->label->name) {
+                free(current->label->name);
+            }
+            if (current->label->address) {
+                free(current->label->address);
+            }
+            // Free the label structure itself
+            free(current->label);
         }
 
         // Free the node itself
         free(current);
         current = next;
-         
     }
 
     list->head = NULL;

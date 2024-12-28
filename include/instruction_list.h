@@ -28,7 +28,7 @@ typedef struct Instruction {
 } Instruction;
 
 typedef struct Node {
-    Instruction *instruction;  // Use pointer to Instruction to break circular dependency
+    Instruction *instruction;  // Use pointer to Instruction
     struct Node *next;
 } Node;
 

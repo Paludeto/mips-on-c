@@ -216,11 +216,11 @@ void validate_data_field(const char *token, char **args, int arg_count, LabelLis
         stripped_name[len - 1] = '\0'; // Remove the trailing ':'
     }
 
+    // List behaves differently, need to fix this so behavior is consistent accross the two lists
     Label *newLabel = create_label(stripped_name, memchunk);
-    add_label(label_list, newLabel);
-    
-    free_label(newLabel);
     free(stripped_name);
+
+    add_label(label_list, newLabel);
 
 }
 

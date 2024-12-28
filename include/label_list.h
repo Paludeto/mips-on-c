@@ -13,7 +13,7 @@ typedef struct Label {
 
 // Node structure for Label list
 typedef struct LabelNode {
-    Label label;
+    Label *label;
     struct LabelNode *next;
 } LabelNode;
 
