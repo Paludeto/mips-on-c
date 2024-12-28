@@ -35,7 +35,7 @@ void print_label_list(LabelList *list) {
     LabelNode *current = list->head;
 
     while (current) {
-        printf("Label: %s, Address: %d\n", current->label->name, current->label->address);
+        printf("Label: %s, Address: 0x%x\n", current->label->name, current->label->address);
         current = current->next;
     }
 
