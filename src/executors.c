@@ -154,3 +154,46 @@ void execute_la(char **operands, Register *r_array, LabelList *label_list) {
     r_array[rt].value = (intptr_t)label->address; // rt = address of label
 
 }
+
+void execute_lw(char **operands, Register *r_array) {
+
+    // Get the register index for destination
+    int rt = get_register_index(operands[0]);
+
+    // Parse the offset value
+    char *open_paren = strchr(operands[1], '(');
+    char *close_paren = strchr(operands[1], ')');
+
+    // Extract offset
+    int offset = atoi(operands[1]); // Parses the numeric part before '('
+
+    // Extract the register name inside parentheses
+    size_t reg_len = close_paren - open_paren - 1; // Length of the register name
+    char *reg_name = malloc(reg_len + 1); // Allocate space for the register name
+
+    if (!reg_name) {
+        perror("Error: Memory allocation failed\n");
+        return;
+    }
+
+    strncpy(reg_name, open_paren + 1, reg_len); // Copy the register name
+    reg_name[reg_len] = '\0'; // Null-terminate the string
+
+    // Get the base register index
+    int base_reg = get_register_index(reg_name);
+    if (base_reg == -1) {
+        printf("Error: Invalid base register %s\n", reg_name);
+        free(reg_name);
+        return;
+    }
+
+    // Simulate loading the word 
+    intptr_t memory_address = (intptr_t) r_array[base_reg].value + offset; // Calculate address
+    printf("Loading from address: %d into register %s\n", memory_address, operands[0]);
+
+    // Perform memory access
+    r_array[rt].value = *(int *)memory_address; 
+
+    free(reg_name); // Free allocated memory
+
+}

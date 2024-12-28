@@ -126,9 +126,17 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
         } 
 
-        if (operand_count == 2) {
+        if (operand_count == 2 && strcmp(inst_def->name, "lw") != 0) {
 
             if (get_register_index(operands[0]) == -1 || !is_imm(operands[1])) {
+                return false;
+            }
+
+            return true;
+
+        } else if (operand_count == 2 && strcmp(inst_def->name, "lw") == 0) {
+
+            if (get_register_index(operands[0]) == -1 || !is_address(operands[1])) {
                 return false;
             }
 
