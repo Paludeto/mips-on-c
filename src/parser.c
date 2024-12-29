@@ -17,7 +17,7 @@ extern uint32_t current_data_address;
 
 // Function to parse the entire file
 void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
-    
+
     FILE *fp = fopen(file_name, "r");
     char line[MAX_INPUT_SIZE];
     char current_mode[16] = "";
@@ -123,15 +123,91 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
 }
 
 // Validate operands based on instruction definition
+// Validate Operands Function
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count) {
-    // Corrected member name from operand_count to op_count
+    // Check if the operand count matches
     if (inst_def->op_count != operand_count) {
-        // Corrected member names from operation to name and operand_count to op_count
         printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
         return false;
     }
 
-    // Additional operand validation based on instruction type can be added here
+    // Validate operands based on InstructionType
+    switch (inst_def->type) {
+        case R:
+            // R-Type: All operands should be valid registers
+            for (int i = 0; i < operand_count; i++) {
+
+                if (!is_register(operands[i])) {
+                    printf("Error: Operand %d (%s) is not a valid register for instruction %s\n", 
+                           i+1, operands[i], inst_def->name);
+                    return false;
+                }
+
+            }
+            break;
+
+        case I:
+            if (strcmp(inst_def->name, "lw") == 0 || strcmp(inst_def->name, "sw") == 0) {
+                // Load/Store I-Type: operand[0] is register, operand[1] is address
+                if (!is_register(operands[0])) {
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                           operands[0], inst_def->name);
+                    return false;
+                }
+                if (!is_address(operands[1])) {
+                    printf("Error: Operand 2 (%s) is not a valid address for instruction %s\n", 
+                           operands[1], inst_def->name);
+                    return false;
+                }
+            }
+            else {
+                // Standard I-Type: operand[0] and operand[1] are registers, operand[2] is immediate
+                if (!is_register(operands[0])) {
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                           operands[0], inst_def->name);
+                    return false;
+                }
+
+                if (!is_register(operands[1])) {
+                    printf("Error: Operand 2 (%s) is not a valid register for instruction %s\n", 
+                           operands[1], inst_def->name);
+                    return false;
+                }
+
+                if (!is_immediate(operands[2])) {
+                    printf("Error: Operand 3 (%s) is not a valid immediate for instruction %s\n", 
+                           operands[2], inst_def->name);
+                    return false;
+                }
+
+            }
+            break;
+
+        case P:
+            // P-Type: operand[0] is register, operand[1] is label
+            if (!is_register(operands[0])) {
+                printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                       operands[0], inst_def->name);
+                return false;
+            }
+
+            if (!is_label(operands[1])) {
+                printf("Error: Operand 2 (%s) is not a valid label for instruction %s\n", 
+                       operands[1], inst_def->name);
+                return false;
+            }
+
+            break;
+
+        case J:
+            // J-Type: Not used in current instruction table
+            // Implement if needed
+            break;
+
+        default:
+            printf("Error: Unsupported instruction type for %s\n", inst_def->name);
+            return false;
+    }
 
     return true;
 }
@@ -234,28 +310,7 @@ bool is_op(const char *token) {
         return false;
     }
 
-    return is_imm(token);
-
-}
-
-bool is_imm(const char *token) {
-
-    if (*token == '-' || *token == '+') {
-        token++;
-    }
-
-    if (*token == '\0') {
-        return false;       
-    }
-
-    while (*token) {
-        if (!isdigit(*token)) {
-            return false;
-        }
-        token++;
-    }
-
-    return true;
+    return is_immediate(token);
 
 }
 
@@ -307,12 +362,66 @@ bool is_address(const char *token) {
 
 }
 
+bool is_register(const char *token) {
+
+    return (get_register_index(token) != -1);
+     
+}
+
+bool is_immediate(const char *token) {
+
+    if (*token == '-' || *token == '+') {
+        token++;
+    }
+
+    if (*token == '\0') {
+        return false;       
+    }
+
+    while (*token) {
+        if (!isdigit(*token)) {
+            return false;
+        }
+        token++;
+    }
+
+    return true;
+
+}
+
+bool is_label(const char *token) {
+
+    if (token == NULL || *token == '\0') {
+        return false;
+    }
+
+    // Labels must start with a letter or underscore
+    if (!isalpha(*token) && *token != '_') {
+        return false;
+    }
+
+    // Labels can contain letters, digits, and underscores
+    while (*token) {
+        if (!isalnum(*token) && *token != '_') {
+            return false;
+        }
+        token++;
+    }
+
+    return true;
+
+}
+
 bool is_data_field(const char *token) {
+
     return strcasecmp(token, ".data") == 0 || strcasecmp(token, ".data:") == 0;
+
 }
 
 bool is_text_field(const char *token) {
+
     return strcasecmp(token, ".text") == 0;
+    
 }
 
 bool is_directive(const char *token) {

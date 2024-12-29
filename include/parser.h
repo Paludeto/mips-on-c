@@ -17,10 +17,11 @@ void validate_execute_inst(const char *instruction, char **operands, int operand
 void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list);
 bool is_label(const char *token);
 bool is_op(const char *token);
-bool is_imm(const char *token);
+bool is_immediate(const char *token);
 bool is_address(const char *token);
 bool is_data_field(const char *token);
 bool is_text_field(const char *token);
 bool is_directive(const char *token);
+bool is_register(const char *token);
 
 #endif
