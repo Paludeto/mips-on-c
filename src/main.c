@@ -20,6 +20,10 @@ int main() {
 
     print_label_list(&label_list);
     print_instruction_list(&inst_list);
+
+    for (int i = 0; i < REG_NUM; i++) {
+        printf("[%s] = %d\n", r_array[i].name, r_array[i].value);
+    }
     
     free_instruction_list(&inst_list);
     free_label_list(&label_list);

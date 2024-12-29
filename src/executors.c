@@ -1,4 +1,5 @@
 #include "executors.h"
+#include "memory.h"
 #include <stdio.h>
 
 // Executors
@@ -155,82 +156,191 @@ void execute_la(char **operands, Register *r_array, LabelList *label_list) {
 
 }
 
-void execute_lw(char **operands, Register *r_array) {
+void execute_lw(char **operands, Register *r_array, LabelList *label_list) {
 
     printf("Executing LW with operands %s, %s\n", operands[0], operands[1]);
 
+    // Get the target register index
     int rt = get_register_index(operands[0]);
-
-    // Parse offset and register from the second operand
-    char *open_paren = strchr(operands[1], '(');
-    char *close_paren = strchr(operands[1], ')');
-
-    if (!open_paren || !close_paren) {
-        printf("Error: Invalid memory access syntax: %s\n", operands[1]);
+    if (rt == -1) {
+        printf("Error: Invalid target register %s\n", operands[0]);
         return;
     }
 
-    // Extract the offset
-    int offset = atoi(operands[1]);
+    // Parse the second operand: "offset(base)"
+    char *operand = operands[1];
+    char *open_paren = strchr(operand, '(');
+    char *close_paren = strchr(operand, ')');
 
-    // Extract the base register name
-    char reg_name[8] = {0};
-    strncpy(reg_name, open_paren + 1, close_paren - open_paren - 1);
+    if (!open_paren || !close_paren || open_paren > close_paren) {
+        printf("Error: Invalid memory access syntax: %s\n", operand);
+        return;
+    }
 
-    // Get the base register index
+    // Extract offset string
+    size_t offset_len = open_paren - operand;
+    if (offset_len == 0) {
+        printf("Error: Missing offset in memory access operand: %s\n", operand);
+        return;
+    }
+
+    char offset_str[offset_len + 1];
+    strncpy(offset_str, operand, offset_len);
+    offset_str[offset_len] = '\0';
+
+    // Convert offset to integer
+    char *endptr;
+    long offset_long = strtol(offset_str, &endptr, 10);
+    if (*endptr != '\0') {
+        printf("Error: Invalid offset value: %s\n", offset_str);
+        return;
+    }
+
+    // Validate offset range (16-bit signed)
+    if (offset_long < -32768 || offset_long > 32767) {
+        printf("Error: Offset %ld out of 16-bit signed range for LW\n", offset_long);
+        return;
+    }
+
+    int offset = (int)offset_long;
+
+    // Extract base register name
+    size_t reg_len = close_paren - open_paren - 1;
+    if (reg_len <= 0 || reg_len >= sizeof(((Register *)0)->name)) { // Prevent buffer overflow
+        printf("Error: Invalid base register in operand: %s\n", operand);
+        return;
+    }
+
+    char reg_name[reg_len + 1];
+    strncpy(reg_name, open_paren + 1, reg_len);
+    reg_name[reg_len] = '\0';
+
+    // Get base register index
     int base = get_register_index(reg_name);
     if (base == -1) {
-        printf("Error: Invalid base register: %s\n", reg_name);
+        printf("Error: Invalid base register %s\n", reg_name);
         return;
     }
 
-    // Compute the effective address
-    intptr_t address = r_array[base].value + offset;
+    // Calculate effective address
+    long base_value = r_array[base].value;
+    long effective_address = base_value + offset;
 
-    // Load the value from the computed address into the target register
-    r_array[rt].value = *((int32_t *)address);
-    
+    // Validate effective address within memory bounds
+    if (effective_address < 0 || (uint32_t)effective_address + 3 >= MEMORY_SIZE) {
+        printf("Error: Effective address 0x%lX out of memory bounds for LW\n", effective_address);
+        return;
+    }
+
+    // Check alignment
+    if (effective_address % 4 != 0) {
+        printf("Error: Unaligned memory access at address: 0x%lX for LW\n", effective_address);
+        return;
+    }
+
+    // Load word from simulated memory
+    int loaded_word;
+    if (!load_word_from_memory((uint32_t)effective_address, &loaded_word)) {
+        // Error already printed in load_word_from_memory
+        return;
+    }
+
+    // Store the loaded word into the target register
+    r_array[rt].value = loaded_word;
+
+    printf("LW: Loaded 0x%X into register %s\n", loaded_word, operands[0]);
+
 }
 
-void execute_sw(char **operands, Register *r_array) {
+// Enhanced execute_sw function
+void execute_sw(char **operands, Register *r_array, LabelList *label_list) {
 
-    // Get the register index for destination
+    printf("Executing SW with operands %s, %s\n", operands[0], operands[1]);
+
+    // Get the source register index
     int rt = get_register_index(operands[0]);
-
-    // Parse the offset value
-    char *open_paren = strchr(operands[1], '(');
-    char *close_paren = strchr(operands[1], ')');
-
-    // Extract offset
-    int offset = atoi(operands[1]); // Parses the numeric part before '('
-
-    // Extract the register name inside parentheses
-    size_t reg_len = close_paren - open_paren - 1; // Length of the register name
-    char *reg_name = malloc(reg_len + 1); // Allocate space for the register name
-
-    if (!reg_name) {
-        perror("Error: Memory allocation failed\n");
+    if (rt == -1) {
+        printf("Error: Invalid source register %s\n", operands[0]);
         return;
     }
 
-    strncpy(reg_name, open_paren + 1, reg_len); // Copy the register name
-    reg_name[reg_len] = '\0'; // Null-terminate the string
+    // Parse the second operand: "offset(base)"
+    char *operand = operands[1];
+    char *open_paren = strchr(operand, '(');
+    char *close_paren = strchr(operand, ')');
 
-    // Get the base register index
-    int base_reg = get_register_index(reg_name);
-    if (base_reg == -1) {
+    if (!open_paren || !close_paren || open_paren > close_paren) {
+        printf("Error: Invalid memory access syntax: %s\n", operand);
+        return;
+    }
+
+    // Extract offset string
+    size_t offset_len = open_paren - operand;
+    if (offset_len == 0) {
+        printf("Error: Missing offset in memory access operand: %s\n", operand);
+        return;
+    }
+    char offset_str[offset_len + 1];
+    strncpy(offset_str, operand, offset_len);
+    offset_str[offset_len] = '\0';
+
+    // Convert offset to integer
+    char *endptr;
+    long offset_long = strtol(offset_str, &endptr, 10);
+    if (*endptr != '\0') {
+        printf("Error: Invalid offset value: %s\n", offset_str);
+        return;
+    }
+
+    // Validate offset range (16-bit signed)
+    if (offset_long < -32768 || offset_long > 32767) {
+        printf("Error: Offset %ld out of 16-bit signed range for SW\n", offset_long);
+        return;
+    }
+    int offset = (int)offset_long;
+
+    // Extract base register name
+    size_t reg_len = close_paren - open_paren - 1;
+    if (reg_len <= 0 || reg_len >= sizeof(((Register *)0)->name)) { // Prevent buffer overflow
+        printf("Error: Invalid base register in operand: %s\n", operand);
+        return;
+    }
+    char reg_name[reg_len + 1];
+    strncpy(reg_name, open_paren + 1, reg_len);
+    reg_name[reg_len] = '\0';
+
+    // Get base register index
+    int base = get_register_index(reg_name);
+    if (base == -1) {
         printf("Error: Invalid base register %s\n", reg_name);
-        free(reg_name);
         return;
     }
 
-    // Simulate loading the word 
-    intptr_t memory_address = (intptr_t) r_array[base_reg].value + offset; // Calculate address
-    printf("Storing at address: %d register %s\n", memory_address, operands[0]);
+    // Calculate effective address
+    long base_value = r_array[base].value;
+    long effective_address = base_value + offset;
 
-    // Perform memory access
-    *(int *)memory_address = r_array[rt].value; 
+    // Validate effective address within memory bounds
+    if (effective_address < 0 || (uint32_t)effective_address + 3 >= MEMORY_SIZE) {
+        printf("Error: Effective address 0x%lX out of memory bounds for SW\n", effective_address);
+        return;
+    }
 
-    free(reg_name); // Free allocated memory
+    // Check alignment
+    if (effective_address % 4 != 0) {
+        printf("Error: Unaligned memory access at address: 0x%lX for SW\n", effective_address);
+        return;
+    }
 
+    // Get the value to store from the source register
+    int value_to_store = r_array[rt].value;
+
+    // Store the word into simulated memory
+    if (!store_word_to_memory((uint32_t)effective_address, value_to_store)) {
+        // Error already printed in store_word_to_memory
+        return;
+    }
+
+    printf("SW: Stored 0x%X from register %s into address 0x%lX\n", value_to_store, operands[0], effective_address);
+    
 }

@@ -13,6 +13,7 @@ set(SOURCES
     src/instruction_list.c
     src/label_list.c
     src/executors.c
+    src/memory.c
     src/main.c
     src/parser.c
     src/register.c

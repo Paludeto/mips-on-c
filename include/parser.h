@@ -7,18 +7,15 @@
 #include <ctype.h>
 #include "instruction_list.h"
 #include "label_list.h"
+#include "memory.h"
 
-// Instruction validation and execution
+// Function prototypes
 void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, LabelList *label_list);
+void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode);
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count);
 void validate_execute_inst(const char *instruction, char **operands, int operand_count, Register *r_array, InstructionList *inst_list, LabelList *label_list);
-void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_table);
-
-void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode);
-
-// Check tokens
+void validate_data_field(const char *token, char **args, int arg_count, LabelList *label_list);
 bool is_label(const char *token);
-bool is_inst(const char *token);
 bool is_op(const char *token);
 bool is_imm(const char *token);
 bool is_address(const char *token);
