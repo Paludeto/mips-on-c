@@ -18,8 +18,8 @@ int main(void) {
   init_registers(r_array);
   init_label_list(&label_list);
 
-  // parseFile("test.s", r_array, &inst_list, &label_list);
-  interactive_parse(r_array, &inst_list, &label_list);
+  parseFile("test.s", r_array, &inst_list, &label_list);
+  // interactive_parse(r_array, &inst_list, &label_list);
 
   // Table headers
   printf("+-----------+------------+\n");

@@ -9,15 +9,15 @@ Instruction table[] = {
     {"and", NULL, R, 3, execute_and, NULL},
     {"or", NULL, R, 3, execute_or, NULL},
     {"sll", NULL, R, 3, execute_sll, NULL},
-    {"lui", NULL, I, 2, execute_lui, NULL},
-    {"addi", NULL, I, 3, execute_addi, NULL},
-    {"move", NULL, R, 2, execute_move, NULL},
     {"slt", NULL, R, 3, execute_slt, NULL},
+    {"move", NULL, R, 2, execute_move, NULL},
+    {"addi", NULL, I, 3, execute_addi, NULL},
     {"slti", NULL, I, 3, execute_slti, NULL},
-    {"la", NULL, P, 2, NULL, execute_la},
+    {"lui", NULL, I, 2, execute_lui, NULL},
     {"lw", NULL, I, 2, NULL, execute_lw},
     {"sw", NULL, I, 2, NULL, execute_sw},
     {"li", NULL, I, 2, execute_li, NULL},
+    {"la", NULL, P, 2, NULL, execute_la},
     {"syscall", NULL, P, 0, execute_syscall, NULL}, // Added syscall here
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
@@ -159,4 +159,8 @@ Instruction *find_instruction(const char *name) {
 
 }
 
-void binary(Instruction inst);
+void binary(Instruction inst) {
+
+
+
+}

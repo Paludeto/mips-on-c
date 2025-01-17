@@ -57,16 +57,22 @@ bool store_word_to_memory(uint32_t address, int value) {
     memory[address + 1] = (value >> 16) & 0xFF;
     memory[address + 2] = (value >> 8) & 0xFF;
     memory[address + 3] = value & 0xFF;
+    
     return true;
 
 }
 
 bool store_string_to_memory(uint32_t address, const char *string) {
+
     size_t len = strlen(string) + 1; // Include null terminator
+    
     if (address + len > MEMORY_SIZE) {
         fprintf(stderr, "Memory access violation: String exceeds memory bounds\n");
         return false;
     }
+
     memcpy(&memory[address], string, len); // Copy string to memory
+
     return true;
+
 }

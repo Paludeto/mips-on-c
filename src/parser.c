@@ -382,8 +382,6 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
     }
 }
 
-
-
 // Helper functions
 bool is_op(const char *token) {
 

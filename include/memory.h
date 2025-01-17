@@ -17,9 +17,10 @@ bool load_word_from_memory(uint32_t address, int *value);
 // Function to store a word to simulated memory (big-endian)
 bool store_word_to_memory(uint32_t address, int value);
 
+// Function to store string address
+bool store_string_to_memory(uint32_t address, const char *string);
+
 // Initialize simulated memory
 void initialize_memory();
-
-bool store_string_to_memory(uint32_t address, const char *string);
 
 #endif
