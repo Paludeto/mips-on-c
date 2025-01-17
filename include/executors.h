@@ -21,5 +21,6 @@ void execute_slti(char **operands, Register *r_array);
 void execute_la(char **operands, Register *r_array, LabelList *label_list);
 void execute_lw(char **operands, Register *r_array, LabelList *label_list);
 void execute_sw(char **operands, Register *r_array, LabelList *label_list);
+void execute_syscall(Register *r_array);
 
 #endif // EXECUTORS_H

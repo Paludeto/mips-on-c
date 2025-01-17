@@ -60,26 +60,19 @@ void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, L
 }
 
 void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode) {
-    // Updated delimiters to exclude '(' and ')'
     const char delimiters[] = " \t,";
     char *token = strtok(line, delimiters);
 
     if (token == NULL) return; // Empty line
 
-    // Check for label (ends with ':')
+    // Capture label if it exists
+    char *label_name = NULL;
     size_t token_len = strlen(token);
     if (token[token_len - 1] == ':') {
         token[token_len - 1] = '\0'; // Remove ':'
-        // Create label with current_data_address or instruction address based on current_mode
-        uint32_t label_address = (strcasecmp(current_mode, ".data") == 0) ? current_data_address : 0; // Assign 0 for text labels initially
-        Label *newLabel = create_label(token, label_address);
-        if (!newLabel) {
-            printf("Error: Failed to create label %s\n", token);
-            return;
-        }
-        add_label(label_list, newLabel);
-        token = strtok(NULL, delimiters); // Get next token after label
-        if (token == NULL) return; // Line has only label
+        label_name = token;          // Capture label name
+        token = strtok(NULL, delimiters); // Move to the next token
+        if (token == NULL) return;       // Line has only a label
     }
 
     // Check for section markers
@@ -88,7 +81,6 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
         return;
     } else if (is_text_field(token)) {
         strcpy(current_mode, ".text");
-        // Optionally, reset current_text_address here if you have separate addresses
         return;
     }
 
@@ -104,7 +96,7 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
         }
 
         if (arg_count > 0) {
-            validate_data_field(NULL, args, arg_count, label_list);
+            validate_data_field(label_name, args, arg_count, label_list);
         }
     } else if (strcasecmp(current_mode, ".text") == 0) {
         // Process instructions
@@ -119,7 +111,6 @@ void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, La
 
         validate_execute_inst(instruction, operands, operand_count, r_array, inst_list, label_list);
     }
-
 }
 
 // Validate operands based on instruction definition
@@ -259,8 +250,13 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         return;
     }
 
-    // Handle directives (e.g., .word, .byte, .space)
+    // Handle `.word` directive
     if (strcasecmp(args[0], ".word") == 0) {
+        // Align the current_data_address to 4 bytes
+        if (current_data_address % 4 != 0) {
+            current_data_address += 4 - (current_data_address % 4);
+        }
+
         // Each subsequent argument is a word to store
         for (int i = 1; i < arg_count; i++) {
             // Convert to integer
@@ -270,6 +266,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
                 printf("Error: Invalid immediate value: %s\n", args[i]);
                 continue;
             }
+
             uint32_t value = (uint32_t)value_long;
 
             // Store in simulated memory
@@ -292,12 +289,45 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
             current_data_address += 4;
         }
     }
-    // Implement other directives like .byte, .half, .space as needed
+    // Handle `.asciiz` directive
+    else if (strcasecmp(args[0], ".asciiz") == 0) {
+        // Ensure label exists
+        if (label_name == NULL) {
+            printf("Error: Missing label for string directive.\n");
+            return;
+        }
+
+        // Combine arguments into a single string
+        char string_value[256] = "";
+        for (int i = 1; i < arg_count; i++) {
+            strcat(string_value, args[i]);
+            if (i < arg_count - 1) strcat(string_value, " ");
+        }
+
+        // Store the string in memory
+        if (!store_string_to_memory(current_data_address, string_value)) {
+            printf("Error: Failed to store string at address 0x%X\n", current_data_address);
+            return;
+        }
+
+        // Create a label for the string
+        Label *newLabel = create_label(label_name, current_data_address);
+        if (!newLabel) {
+            printf("Error: Failed to create label %s\n", label_name);
+            return;
+        }
+        add_label(label_list, newLabel);
+
+        // Update the data address
+        current_data_address += strlen(string_value) + 1; // +1 for null terminator
+    }
+    // Unsupported directives
     else {
         printf("Error: Unsupported directive %s in data field\n", args[0]);
     }
-
 }
+
+
 
 // Helper functions
 bool is_op(const char *token) {
@@ -426,10 +456,10 @@ bool is_text_field(const char *token) {
 
 bool is_directive(const char *token) {
 
-    const char *directives[] = {".word", ".byte", ".half", ".float", ".double", ".space", NULL};
+    const char *directives[] = {".word", ".byte", ".half", ".float", ".double", ".space", ".ascii", ".asciiz", NULL};
 
     for (int i = 0; directives[i] != NULL; i++) {
-        if (strcmp(token, directives[i]) == 0) {
+        if (strcasecmp(token, directives[i]) == 0) {
             return true; // Valid directive found
         }
     }

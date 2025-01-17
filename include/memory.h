@@ -20,4 +20,6 @@ bool store_word_to_memory(uint32_t address, int value);
 // Initialize simulated memory
 void initialize_memory();
 
+bool store_string_to_memory(uint32_t address, const char *string);
+
 #endif
