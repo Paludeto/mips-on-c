@@ -14,6 +14,41 @@
 extern uint32_t data_segment_start;
 extern uint32_t current_data_address;
 
+void interactive_parse(Register *r_array, InstructionList *inst_list, LabelList *label_list) {
+
+    char line[MAX_INPUT_SIZE];
+    char current_mode[16] = ""; // Controla o contexto atual (data ou text)
+    printf("Modo Interativo: Digite uma instrução ou '.exit' para sair.\n");
+
+    while (1) {
+        
+        printf("> "); // Prompt interativo
+        if (fgets(line, sizeof(line), stdin) == NULL) {
+            break; // EOF ou erro de leitura
+        }
+
+        // Remove caracteres de nova linha
+        size_t len = strlen(line);
+        while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+            line[len - 1] = '\0';
+            len--;
+        }
+
+        // Ignorar linhas vazias
+        if (len == 0) continue;
+
+        // Verificar comando de saída
+        if (strcmp(line, ".exit") == 0) {
+            printf("Saindo do modo interativo.\n");
+            break;
+        }
+
+        // Reutilizar tokenize_line para processar a entrada
+        tokenize_line(line, r_array, inst_list, label_list, current_mode);
+    }
+
+}
+
 // Function to parse the entire file
 void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, LabelList *label_list) {
 

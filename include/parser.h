@@ -10,6 +10,7 @@
 #include "memory.h"
 
 // Function prototypes
+void interactive_parse(Register *r_array, InstructionList *inst_list, LabelList *label_list);
 void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, LabelList *label_list);
 void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode);
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count);
