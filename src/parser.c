@@ -6,8 +6,7 @@
 #include <ctype.h>
 
 // Define maximums
-#define MAX_OP 4
-#define MAX_DIR 100
+#define MAX_DIR 128
 #define MAX_INPUT_SIZE 256
 #define MAX_OPERANDS 4
 
@@ -60,6 +59,7 @@ void parseFile(char *file_name, Register *r_array, InstructionList *inst_list, L
 }
 
 void tokenize_line(char *line, Register *r_array, InstructionList *inst_list, LabelList *label_list, char *current_mode) {
+
     const char delimiters[] = " \t,";
     char *token = strtok(line, delimiters);
 
@@ -122,18 +122,45 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
         return false;
     }
 
+    // Special cases for specific instructions
+    if (strcmp(inst_def->name, "li") == 0) {
+        // First operand must be a valid register
+        if (!is_register(operands[0])) {
+            printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
+                   operands[0], inst_def->name);
+            return false;
+        }
+
+        // Second operand must be an immediate value
+        if (!is_immediate(operands[1])) {
+            printf("Error: Operand 2 (%s) is not a valid immediate for instruction %s\n",
+                   operands[1], inst_def->name);
+            return false;
+        }
+
+        return true;
+    }
+
+    if (strcmp(inst_def->name, "syscall") == 0) {
+        // Syscall does not take any operands
+        if (operand_count != 0) {
+            printf("Error: Syscall does not take any operands, found %d\n", operand_count);
+            return false;
+        }
+
+        return true;
+    }
+
     // Validate operands based on InstructionType
     switch (inst_def->type) {
         case R:
             // R-Type: All operands should be valid registers
             for (int i = 0; i < operand_count; i++) {
-
                 if (!is_register(operands[i])) {
-                    printf("Error: Operand %d (%s) is not a valid register for instruction %s\n", 
-                           i+1, operands[i], inst_def->name);
+                    printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
+                           i + 1, operands[i], inst_def->name);
                     return false;
                 }
-
             }
             break;
 
@@ -141,58 +168,50 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             if (strcmp(inst_def->name, "lw") == 0 || strcmp(inst_def->name, "sw") == 0) {
                 // Load/Store I-Type: operand[0] is register, operand[1] is address
                 if (!is_register(operands[0])) {
-                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
                            operands[0], inst_def->name);
                     return false;
                 }
                 if (!is_address(operands[1])) {
-                    printf("Error: Operand 2 (%s) is not a valid address for instruction %s\n", 
+                    printf("Error: Operand 2 (%s) is not a valid address for instruction %s\n",
                            operands[1], inst_def->name);
                     return false;
                 }
-            }
-            else {
+            } else {
                 // Standard I-Type: operand[0] and operand[1] are registers, operand[2] is immediate
                 if (!is_register(operands[0])) {
-                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
                            operands[0], inst_def->name);
                     return false;
                 }
 
                 if (!is_register(operands[1])) {
-                    printf("Error: Operand 2 (%s) is not a valid register for instruction %s\n", 
+                    printf("Error: Operand 2 (%s) is not a valid register for instruction %s\n",
                            operands[1], inst_def->name);
                     return false;
                 }
 
                 if (!is_immediate(operands[2])) {
-                    printf("Error: Operand 3 (%s) is not a valid immediate for instruction %s\n", 
+                    printf("Error: Operand 3 (%s) is not a valid immediate for instruction %s\n",
                            operands[2], inst_def->name);
                     return false;
                 }
-
             }
             break;
 
         case P:
             // P-Type: operand[0] is register, operand[1] is label
             if (!is_register(operands[0])) {
-                printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n", 
+                printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
                        operands[0], inst_def->name);
                 return false;
             }
 
             if (!is_label(operands[1])) {
-                printf("Error: Operand 2 (%s) is not a valid label for instruction %s\n", 
+                printf("Error: Operand 2 (%s) is not a valid label for instruction %s\n",
                        operands[1], inst_def->name);
                 return false;
             }
-
-            break;
-
-        case J:
-            // J-Type: Not used in current instruction table
-            // Implement if needed
             break;
 
         default:
@@ -201,6 +220,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
     }
 
     return true;
+
 }
 
 // Validate and execute an instruction

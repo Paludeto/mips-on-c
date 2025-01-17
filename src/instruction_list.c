@@ -17,6 +17,8 @@ Instruction table[] = {
     {"la", NULL, P, 2, NULL, execute_la},
     {"lw", NULL, I, 2, NULL, execute_lw},
     {"sw", NULL, I, 2, NULL, execute_sw},
+    {"li", NULL, I, 2, execute_li, NULL},
+    {"syscall", NULL, P, 0, execute_syscall, NULL}, // Added syscall here
     {NULL, NULL, UNKNOWN, 0, NULL} // Sentinel to mark the end
 };
 
@@ -157,7 +159,4 @@ Instruction *find_instruction(const char *name) {
 
 }
 
-
-// TO-DO: implement behavior
-void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);

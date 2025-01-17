@@ -47,7 +47,6 @@ Instruction *create_instruction(const char *name, InstructionType type, char **o
 Instruction *find_instruction(const char *name);
 
 // BLOAT
-void syscall(Instruction *inst, Register *arg, Register *dest);
 void binary(Instruction inst);
 
 #endif

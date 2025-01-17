@@ -345,32 +345,30 @@ void execute_sw(char **operands, Register *r_array, LabelList *label_list) {
     
 }
 
-void execute_syscall(Register *r_array) {
+void execute_li(char **operands, Register *r_array) {
 
-    int syscall_code = r_array[2].value; // $v0 is register 2
-    int string_address;
+    printf("Executing LI with operands %s, %s\n", operands[0], operands[1]);
 
-    printf("Executing SYSCALL with $v0 = %d\n", syscall_code);
+    int rt = get_register_index(operands[0]);
+    int imm = atoi(operands[1]);
 
-    if (syscall_code == 4) { // Print string syscall
-        // $a0 holds the address of the string (register 4)
-        string_address = r_array[4].value; // $a0 is register 4
-
-        // Validate the address range
-        if (string_address < 0 || string_address >= MEMORY_SIZE) {
-            printf("Error: Invalid string address 0x%X\n", string_address);
-            return;
-        }
-
-        // Print string byte by byte until null terminator
-        printf("Output: ");
-        while (memory[string_address] != '\0') {
-            putchar(memory[string_address]);
-            string_address++;
-        }
-        putchar('\n'); // End output with a newline
-    } else {
-        printf("Error: Unsupported syscall with $v0 = %d\n", syscall_code);
-    }
+    r_array[rt].value = imm; // Directly load the value into the register
     
+}
+
+
+void execute_syscall(char **operands, Register *r_array) {
+    // In this case, operands are not used, but the function matches the expected signature
+    int syscall_code = r_array[2].value; // $v0 is register 2
+    switch (syscall_code) {
+        case 4: { // Print string
+            uint32_t address = r_array[4].value; // $a0 is register 4
+            char *string = (char *)&memory[address]; // Assuming `memory` is accessible
+            printf("Output: %s\n", string);
+            break;
+        }
+        default:
+            printf("Error: Unsupported syscall code %d\n", syscall_code);
+            break;
+    }
 }
