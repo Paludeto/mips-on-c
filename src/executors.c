@@ -353,7 +353,7 @@ void execute_li(char **operands, Register *r_array) {
     int imm = atoi(operands[1]);
 
     r_array[rt].value = imm; // Directly load the value into the register
-    
+
 }
 
 
@@ -361,12 +361,19 @@ void execute_syscall(char **operands, Register *r_array) {
     // In this case, operands are not used, but the function matches the expected signature
     int syscall_code = r_array[2].value; // $v0 is register 2
     switch (syscall_code) {
+
         case 4: { // Print string
             uint32_t address = r_array[4].value; // $a0 is register 4
             char *string = (char *)&memory[address]; // Assuming `memory` is accessible
             printf("Output: %s\n", string);
             break;
         }
+
+        case 10: {
+            printf("Exiting program...\n");
+            return;
+        }
+        
         default:
             printf("Error: Unsupported syscall code %d\n", syscall_code);
             break;
