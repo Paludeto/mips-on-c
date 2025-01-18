@@ -227,7 +227,7 @@ void execute_lw(char **operands, Register *r_array, LabelList *label_list) {
     long effective_address = base_value + offset;
 
     // Validate effective address within memory bounds
-    if (effective_address < 0 || (uint32_t)effective_address + 3 >= MEMORY_SIZE) {
+    if (effective_address < 0 || (uint32_t)effective_address + 3 >= DATA_MEM_SIZE) {
         printf("Error: Effective address 0x%lX out of memory bounds for LW\n", effective_address);
         return;
     }
@@ -321,7 +321,7 @@ void execute_sw(char **operands, Register *r_array, LabelList *label_list) {
     long effective_address = base_value + offset;
 
     // Validate effective address within memory bounds
-    if (effective_address < 0 || (uint32_t)effective_address + 3 >= MEMORY_SIZE) {
+    if (effective_address < 0 || (uint32_t)effective_address + 3 >= DATA_MEM_SIZE) {
         printf("Error: Effective address 0x%lX out of memory bounds for SW\n", effective_address);
         return;
     }
@@ -364,7 +364,7 @@ void execute_syscall(char **operands, Register *r_array) {
 
         case 4: { // Print string
             uint32_t address = r_array[4].value; // $a0 is register 4
-            char *string = (char *)&memory[address]; // Assuming `memory` is accessible
+            char *string = (char *)&data_memory[address]; // Assuming `memory` is accessible
             printf("Output: %s\n", string);
             break;
         }

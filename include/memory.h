@@ -4,12 +4,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// Define memory size (1 MB for example)
-#define MEMORY_SIZE 0x100000 // 1,048,576 bytes
+// Define memory size (could be optimized for embedded systems and whatnot)
+#define DATA_MEM_SIZE 0x200000 // 2 MB
+#define INST_MEM_SIZE 0x100000 // 1 MB
 
-extern unsigned char memory[];
-extern uint32_t data_segment_start;
-extern uint32_t text_segment_start;
+extern unsigned char data_memory[];
+extern uint32_t inst_memory[];
+
+extern uint32_t current_text_address;
 extern uint32_t current_data_address;
 extern uint32_t program_counter;
 
@@ -21,6 +23,9 @@ bool store_word_to_memory(uint32_t address, int value);
 
 // Function to store string address
 bool store_string_to_memory(uint32_t address, const char *string);
+
+// Instruction storage
+bool store_instruction_to_memory(uint32_t address, uint32_t instruction);
 
 // Initialize simulated memory
 void initialize_memory();

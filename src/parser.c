@@ -59,11 +59,6 @@ void parseFile(char *file_name) {
     
     initialize_memory();
 
-    // Initialize data address
-    if (current_data_address == 0) {
-        current_data_address = data_segment_start;
-    }
-
     while (fgets(line, sizeof(line), fp)) {
         // Remove newline characters
         size_t len = strlen(line);

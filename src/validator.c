@@ -1,8 +1,7 @@
 #include "validator.h"
 
-extern uint32_t data_segment_start;
 extern uint32_t current_data_address;
-extern uint32_t text_segment_start;
+extern uint32_t current_text_address;
 extern uint32_t program_counter;
 
 // Validate and execute an instruction
@@ -24,8 +23,13 @@ void validate_inst(const char *instruction, char **operands, int operand_count) 
     int binary = encode(inst_def, operands);
     printf("Encoded instruction: 0x%08X\n", binary);
 
-    // add to memory (TO-DO)
-
+    if (store_instruction_to_memory(current_text_address, binary)) {
+        fprintf(stderr, "Instruction stored\n");
+        current_text_address++;
+    } else {
+        fprintf(stderr, "Instruction storage failed\n");
+    }
+    
 }
 
 // Validate operands based on instruction definition
@@ -54,17 +58,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
         return true;
     }
-
-    if (strcmp(inst_def->name, "syscall") == 0) {
-        // Syscall does not take any operands
-        if (operand_count != 0) {
-            printf("Error: Syscall does not take any operands, found %d\n", operand_count);
-            return false;
-        }
-
-        return true;
-    }
-
+    
     // Validate operands based on InstructionType
     switch (inst_def->type) {
 

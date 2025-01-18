@@ -9,14 +9,12 @@
 int main(void) {
 
   initialize_memory();         
-  LabelList label_list;
 
   init_registers(r_array);
-  init_label_list(&label_list);
 
   parseFile("test.s");
   // interactive_parse(r_array, &inst_list, &label_list);
-
+  
   // Table headers
   printf("+-----------+------------+\n");
   printf("| Register  | Value      |\n");
@@ -29,8 +27,6 @@ int main(void) {
 
   // Table footer
   printf("+-----------+------------+\n");
-
-  free_label_list(&label_list);
 
   return 0;
 
