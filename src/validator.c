@@ -39,25 +39,6 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
         printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
         return false;
     }
-
-    // Special cases for specific instructions
-    if (strcmp(inst_def->name, "li") == 0) {
-        // First operand must be a valid register
-        if (!is_register(operands[0])) {
-            printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
-                   operands[0], inst_def->name);
-            return false;
-        }
-
-        // Second operand must be an immediate value
-        if (!is_immediate(operands[1])) {
-            printf("Error: Operand 2 (%s) is not a valid immediate for instruction %s\n",
-                   operands[1], inst_def->name);
-            return false;
-        }
-
-        return true;
-    }
     
     // Validate operands based on InstructionType
     switch (inst_def->type) {
@@ -88,7 +69,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
         case I:
             if (strcmp(inst_def->name, "lw") == 0 || strcmp(inst_def->name, "sw") == 0) {
-                // Load/Store I-Type: operand[0] is register, operand[1] is address
+                
                 if (!is_register(operands[0])) {
                     printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
                            operands[0], inst_def->name);
@@ -99,6 +80,23 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                            operands[1], inst_def->name);
                     return false;
                 }
+
+            } else if (strcmp(inst_def->name, "li") == 0) {
+
+                if (!is_register(operands[0])) {
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
+                    operands[0], inst_def->name);
+                    return false;
+                }
+
+                if (!is_immediate(operands[1])) {
+                    printf("Error: Operand 2 (%s) is not a valid immediate for instruction %s\n",
+                    operands[1], inst_def->name);
+                    return false;
+                }
+
+                return true;
+
             } else {
                 // Standard I-Type: operand[0] and operand[1] are registers, operand[2] is immediate
                 if (!is_register(operands[0])) {
@@ -198,9 +196,8 @@ void validate_data_field(const char *label_name, char **args, int arg_count) {
             // Increment the data address by 4 bytes (size of a word)
             current_data_address += 4;
         }
-    }
-    // Handle `.asciiz` directive
-    else if (strcasecmp(args[0], ".asciiz") == 0) {
+
+    } else if (strcasecmp(args[0], ".asciiz") == 0) {
         // Ensure label exists
         if (label_name == NULL) {
             printf("Error: Missing label for string directive.\n");
@@ -221,9 +218,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count) {
         }
         // Update the data address
         current_data_address += strlen(string_value) + 1; // +1 for null terminator
-    }
-    // Unsupported directives
-    else {
+    } else {
         printf("Error: Unsupported directive %s in data field\n", args[0]);
     }
 }
