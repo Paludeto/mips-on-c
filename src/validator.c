@@ -24,12 +24,11 @@ void validate_inst(const char *instruction, char **operands, int operand_count) 
     int binary = encode(inst_def, operands);
     printf("Encoded instruction: 0x%08X\n", binary);
 
-    // add to memory
+    // add to memory (TO-DO)
 
 }
 
 // Validate operands based on instruction definition
-// Validate Operands Function
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count) {
     // Check if the operand count matches
     if (inst_def->op_count != operand_count) {
@@ -77,6 +76,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                     return false;
                 }
             }
+
             break;
 
         case I:
@@ -112,6 +112,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                     return false;
                 }
             }
+
             break;
 
         case P:
@@ -127,6 +128,16 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                        operands[1], inst_def->name);
                 return false;
             }
+
+            break;
+
+        case SYS:
+
+            if (operand_count != 0) {
+                printf("Error: syscall takes no arguments\n");
+                return false;
+            }
+
             break;
 
         default:

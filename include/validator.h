@@ -1,7 +1,7 @@
 #ifndef VALIDATOR_H
 #define VALIDATOR_H
 
-#include "instruction_list.h"
+#include "instructions.h"
 #include "memory.h"
 #include "encoder.h"
 #include <stdbool.h>

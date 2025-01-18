@@ -9,12 +9,8 @@
 int main(void) {
 
   initialize_memory();         
-
-  Register r_array[32];
-  InstructionList inst_list;
   LabelList label_list;
 
-  init_instruction_list(&inst_list);
   init_registers(r_array);
   init_label_list(&label_list);
 
@@ -34,7 +30,6 @@ int main(void) {
   // Table footer
   printf("+-----------+------------+\n");
 
-  free_instruction_list(&inst_list);
   free_label_list(&label_list);
 
   return 0;

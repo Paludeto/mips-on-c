@@ -13,6 +13,8 @@ typedef struct Register {
     __int32_t value;
 } Register;
 
+extern Register r_array[REG_NUM];
+
 void init_registers(Register *regArray);
 int get_register_index(const char *reg);
 

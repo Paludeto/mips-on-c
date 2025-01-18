@@ -10,7 +10,7 @@ include_directories(include)
 
 # Source files
 set(SOURCES
-    src/instruction_list.c
+    src/instructions.c
     src/label_list.c
     src/executors.c
     src/memory.c

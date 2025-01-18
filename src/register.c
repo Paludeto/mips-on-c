@@ -1,5 +1,7 @@
 #include <register.h>
 
+Register r_array[REG_NUM];
+
 const char *valid_registers[] = {
     "$zero", "$at", "$v0", "$v1",
     "$a0", "$a1", "$a2", "$a3",
@@ -19,7 +21,6 @@ void init_registers(Register *r_arr) {
         r_arr[i].number = i;
         r_arr[i].value = 0;
     }
-
     
 }
 
