@@ -9,7 +9,9 @@
 
 extern unsigned char memory[];
 extern uint32_t data_segment_start;
+extern uint32_t text_segment_start;
 extern uint32_t current_data_address;
+extern uint32_t program_counter;
 
 // Function to load a word from simulated memory (big-endian)
 bool load_word_from_memory(uint32_t address, int *value);

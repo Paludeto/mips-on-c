@@ -9,9 +9,9 @@ unsigned char memory[MEMORY_SIZE];
 
 // Define the start address of the data segment (e.g., 0x00010000)
 uint32_t data_segment_start = 0x00010000;
-
-// Initialize the current data address to the start of the data segment
+uint32_t text_segment_start = 0x00400000;
 uint32_t current_data_address = 0;
+uint32_t program_counter = 0;
 
 // Initialize memory (optional: set to zero)
 void initialize_memory() {

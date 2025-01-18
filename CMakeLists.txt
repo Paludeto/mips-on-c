@@ -17,6 +17,8 @@ set(SOURCES
     src/main.c
     src/parser.c
     src/register.c
+    src/encoder.c
+    src/validator.c
 )
 
 # Add executable
