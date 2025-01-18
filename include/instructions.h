@@ -20,9 +20,10 @@ typedef enum InstructionType {
 // Each instruction has its own executor function in the table
 typedef struct Instruction {
     char *name;
-    char **operands;
     InstructionType type;
-    int op_count;
+    uint32_t opcode;
+    uint32_t funct;
+    uint32_t op_count;
 } Instruction;
 
 Instruction *find_instruction(const char *name);

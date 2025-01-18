@@ -54,6 +54,15 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                         return false;
                     }
                 }
+            // mult
+            } else if (strcmp(inst_def->name, "mult")) {
+
+                if (is_register(operands[0]) && is_register(operands[1])) {
+                    return true;
+                }
+
+                return false;
+
             } else {    // Other R-type instructions
                 for (int i = 0; i < operand_count; i++) {
                     if (!is_register(operands[i])) {
@@ -63,7 +72,6 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                     }
                 }
             }
-
 
             break;
 

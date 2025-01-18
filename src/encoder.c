@@ -2,15 +2,15 @@
 
 int encode(Instruction *inst, char **operands) {
     
-    int binary;
+    int binary = 0;
+    int opcode = 0;
+    int funct = 0;
 
     switch (inst->type) {
 
         case R: {
-            
-            int opcode = 0;
+
             int shamt = 0;
-            int funct = 0;
             int rd = get_register_index(operands[0]); 
             int rs = get_register_index(operands[1]); 
             int rt = get_register_index(operands[2]); 
@@ -42,7 +42,7 @@ int encode(Instruction *inst, char **operands) {
                 printf("Error: Unsupported R-type instruction '%s'\n", inst->name);
                 return -1;
             }
-
+            
             binary = (opcode << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (shamt << 6) | funct;
 
             break;
