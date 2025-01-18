@@ -4,7 +4,6 @@
 #include "instructions.h"
 #include "memory.h"
 #include "encoder.h"
-#include <stdbool.h>
 #include <ctype.h>
 
 bool validate_operands(const Instruction *inst_def, char **operands, int operand_count);

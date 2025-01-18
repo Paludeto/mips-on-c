@@ -18,7 +18,7 @@ Instruction table[] = {
     {"sw", NULL, I, 2},
     {"li", NULL, I, 2},
     {"la", NULL, P, 2},
-    {"syscall", NULL, P, 0}, // Added syscall here
+    {"syscall", NULL, SYS, 0}, // Added syscall here
     {NULL, NULL, UNKNOWN, 0} // Sentinel to mark the end
 };
 
