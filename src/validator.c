@@ -67,15 +67,28 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 
     // Validate operands based on InstructionType
     switch (inst_def->type) {
+
         case R:
-            // R-Type: All operands should be valid registers
-            for (int i = 0; i < operand_count; i++) {
-                if (!is_register(operands[i])) {
-                    printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
-                           i + 1, operands[i], inst_def->name);
-                    return false;
+
+            //SLL
+            if (is_immediate(operands[2])) {
+                for (int i = 0; i < operand_count - 1; i++) {
+                    if (!is_register(operands[i])) {
+                        printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
+                            i + 1, operands[i], inst_def->name);
+                        return false;
+                    }
+                }
+            } else {    // Other R-type instructions
+                for (int i = 0; i < operand_count; i++) {
+                    if (!is_register(operands[i])) {
+                        printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
+                            i + 1, operands[i], inst_def->name);
+                        return false;
+                    }
                 }
             }
+
 
             break;
 
