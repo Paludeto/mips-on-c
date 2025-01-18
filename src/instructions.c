@@ -15,8 +15,7 @@ Instruction table[] = {
     {"lui", I, 0x0F, 0x00, 2},   // I-type: opcode = 0x0F, funct = N/A (load upper immediate)
     {"lw", I, 0x23, 0x00, 2},    // I-type: opcode = 0x23, funct = N/A (load word)
     {"sw", I, 0x2B, 0x00, 2},    // I-type: opcode = 0x2B, funct = N/A (store word)
-    {"li", I, 0x00, 0x00, 2},    // Pseudo-instruction: Needs translation
-    {"move", P, 0x00, 0x00, 2},  // Pseudo-instruction: Needs translation
+    {"li", P, 0x00, 0x00, 2},    // Pseudo-instruction: Needs translation
     {"la", P, 0x00, 0x00, 2},    // Pseudo-instruction: Needs translation
     {"syscall", SYS, 0x00, 0x0C, 0}, // System call
     {NULL, UNKNOWN, 0x00, 0x00, 0}   // Sentinel to mark the end

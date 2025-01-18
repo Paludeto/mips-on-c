@@ -89,22 +89,6 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
                     return false;
                 }
 
-            } else if (strcmp(inst_def->name, "li") == 0) {
-
-                if (!is_register(operands[0])) {
-                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
-                    operands[0], inst_def->name);
-                    return false;
-                }
-
-                if (!is_immediate(operands[1])) {
-                    printf("Error: Operand 2 (%s) is not a valid immediate for instruction %s\n",
-                    operands[1], inst_def->name);
-                    return false;
-                }
-
-                return true;
-
             } else {
                 // Standard I-Type: operand[0] and operand[1] are registers, operand[2] is immediate
                 if (!is_register(operands[0])) {
@@ -129,17 +113,39 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             break;
 
         case P:
-            // P-Type: operand[0] is register, operand[1] is label
-            if (!is_register(operands[0])) {
-                printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
-                       operands[0], inst_def->name);
-                return false;
-            }
 
-            if (!is_label(operands[1])) {
-                printf("Error: Operand 2 (%s) is not a valid label for instruction %s\n",
-                       operands[1], inst_def->name);
-                return false;
+            if (strcmp(inst_def->name, "li") == 0) {
+
+                if (!is_register(operands[0])) {
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
+                    operands[0], inst_def->name);
+                    return false;
+                }
+
+                if (!is_immediate(operands[1])) {
+                    printf("Error: Operand 2 (%s) is not a valid immediate for instruction %s\n",
+                    operands[1], inst_def->name);
+                    return false;
+                }
+
+                return true;
+
+            } else {
+
+                // P-Type: operand[0] is register, operand[1] is label
+                if (!is_register(operands[0])) {
+                    printf("Error: Operand 1 (%s) is not a valid register for instruction %s\n",
+                        operands[0], inst_def->name);
+                    return false;
+                }
+
+                if (!is_label(operands[1])) {
+                    printf("Error: Operand 2 (%s) is not a valid label for instruction %s\n",
+                        operands[1], inst_def->name);
+                    return false;
+                }
+
+
             }
 
             break;
