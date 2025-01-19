@@ -122,7 +122,7 @@ void tokenize_line(char *line, char *current_mode) {
         }
 
         if (arg_count > 0) {
-            validate_data_field(label_name, args, arg_count);
+            validate_data_field(label_name, args, arg_count, label_arr);
         }
 
     } else if (strcasecmp(current_mode, ".text") == 0) {

@@ -139,24 +139,24 @@ void execute_slti(char **operands, Register *r_array) {
 
 }
 
-void execute_la(char **operands, Register *r_array, LabelList *label_list) {
+void execute_la(char **operands, Register *r_array, Label *label_arr) {
 
     printf("Executing LA with operands %s, %s\n", operands[0], operands[1]);
 
     int rt = get_register_index(operands[0]);
-    Label *label = find_label(label_list, operands[1]);
+    uint32_t address = find_label_address(label_arr, operands[1]);
 
     // Null check if label is not found
-    if (label == NULL) {
+    if (address == -1) {
         printf("Error: Label %s not found\n", operands[1]);
         return;
     }
 
-    r_array[rt].value = (intptr_t)label->address; // rt = address of label
+    r_array[rt].value = address; // rt = address of label
 
 }
 
-void execute_lw(char **operands, Register *r_array, LabelList *label_list) {
+void execute_lw(char **operands, Register *r_array) {
 
     printf("Executing LW with operands %s, %s\n", operands[0], operands[1]);
 
@@ -253,7 +253,7 @@ void execute_lw(char **operands, Register *r_array, LabelList *label_list) {
 }
 
 // Enhanced execute_sw function
-void execute_sw(char **operands, Register *r_array, LabelList *label_list) {
+void execute_sw(char **operands, Register *r_array) {
 
     printf("Executing SW with operands %s, %s\n", operands[0], operands[1]);
 
@@ -358,8 +358,10 @@ void execute_li(char **operands, Register *r_array) {
 
 
 void execute_syscall(char **operands, Register *r_array) {
+    
     // In this case, operands are not used, but the function matches the expected signature
     int syscall_code = r_array[2].value; // $v0 is register 2
+
     switch (syscall_code) {
 
         case 4: { // Print string
@@ -378,4 +380,5 @@ void execute_syscall(char **operands, Register *r_array) {
             printf("Error: Unsupported syscall code %d\n", syscall_code);
             break;
     }
+
 }

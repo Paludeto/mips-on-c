@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "label_list.h"
+#include "label.h"
 #include "validator.h"
 
 // Function prototypes

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "register.h"
-#include "label_list.h"
+#include "label.h"
 
 typedef enum InstructionType {
     R,

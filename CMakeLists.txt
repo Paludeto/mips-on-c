@@ -11,7 +11,7 @@ include_directories(include)
 # Source files
 set(SOURCES
     src/instructions.c
-    src/label_list.c
+    src/label.c
     src/executors.c
     src/memory.c
     src/main.c

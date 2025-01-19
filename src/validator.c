@@ -169,7 +169,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
 }
 
 // Validate and handle data directives
-void validate_data_field(const char *label_name, char **args, int arg_count) {
+void validate_data_field(const char *label_name, char **args, int arg_count, Label *label_arr) {
 
     if (arg_count < 2) { // Minimum: directive and at least one value
         printf("Error: Insufficient arguments in data field\n");
@@ -207,6 +207,11 @@ void validate_data_field(const char *label_name, char **args, int arg_count) {
                 return;
             }
 
+             // If it's the first word and label_name is provided, map the label to this address
+            if (i == 1 && label_name != NULL) {
+                add_label(label_arr, label_name, current_data_address);
+            }
+
             // Increment the data address by 4 bytes (size of a word)
             current_data_address += 4;
         }
@@ -231,6 +236,9 @@ void validate_data_field(const char *label_name, char **args, int arg_count) {
             return;
         }
         // Update the data address
+
+        add_label(label_arr, label_name, current_data_address);
+        
         current_data_address += strlen(string_value) + 1; // +1 for null terminator
     } else {
         printf("Error: Unsupported directive %s in data field\n", args[0]);
