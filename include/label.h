@@ -12,7 +12,7 @@
 
 // Definition of Label
 typedef struct Label {
-    char name[MAX_LABEL_LEN];          // Dynamically allocated name
+    char name[MAX_LABEL_LEN];
     uint32_t address;    // Memory address associated with the label
 } Label;
 

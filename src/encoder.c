@@ -11,39 +11,30 @@ int encode(Instruction *inst, char **operands) {
         case R: {
 
             int shamt = 0;
-            int rd = get_register_index(operands[0]); 
-            int rs = get_register_index(operands[1]); 
-            int rt = get_register_index(operands[2]); 
+            int rd, rs, rt;
 
-            if (rt == -1) {
-                shamt = atoi(operands[2]);
-                rt = 0;
-            }
+            if (inst->op_count == 2) {
+                rd = 0;
+                rs = get_register_index(operands[0]);
+                rt = get_register_index(operands[1]); 
+            } else if (inst->op_count == 3) {
+                rd = get_register_index(operands[0]); 
+                rs = get_register_index(operands[1]); 
+                rt = get_register_index(operands[2]);
 
-            if (strcmp(inst->name, "add") == 0) {
-                funct = 0x20; 
-            } else if (strcmp(inst->name, "sub") == 0) {
-                funct = 0x22; 
-            } else if (strcmp(inst->name, "mult") == 0) {
-                funct = 0x18; 
-                rd = 0; 
-            } else if (strcmp(inst->name, "and") == 0) {
-                funct = 0x24; 
-            } else if (strcmp(inst->name, "or") == 0) {
-                funct = 0x25; 
-            } else if (strcmp(inst->name, "sll") == 0) {
-                funct = 0x00; 
-            } else if (strcmp(inst->name, "slt") == 0) {
-                funct = 0x2A; 
-            } else if (strcmp(inst->name, "move") == 0) {
-                funct = 0x20; 
-                rs = 0;      
+                if (strcmp(inst->name, "sll") == 0) {
+                    rs = 0;
+                    rt = get_register_index(operands[1]);
+                    rd = get_register_index(operands[0]);  
+                    shamt = atoi(operands[2]);  
+                }
+
             } else {
-                printf("Error: Unsupported R-type instruction '%s'\n", inst->name);
+                printf("Unsupported instruction\n");
                 return -1;
             }
             
-            binary = (opcode << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (shamt << 6) | funct;
+            binary = (inst->opcode << 26) | (rs << 21) | (rt << 16) | (rd << 11) | (shamt << 6) | inst->funct;
 
             break;
             

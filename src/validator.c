@@ -18,7 +18,7 @@ void validate_inst(const char *instruction, char **operands, int operand_count) 
         return;
     }
 
-
+    // debug purposes
     printf("%s %s, %s, %s\n", instruction, operands[0], operands[1], operands[2]);
     int binary = encode(inst_def, operands);
     printf("Encoded instruction: 0x%08X\n", binary);
