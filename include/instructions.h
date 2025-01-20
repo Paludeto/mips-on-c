@@ -19,16 +19,31 @@ typedef enum InstructionType {
 // Actual instructions
 typedef struct Instruction {
 
+    uint8_t opcode;
+
     InstructionType type;
 
     union {
-        uint8_t funct;    
-        uint16_t imm;      
-        uint32_t address;  
-    } value;             
+        
+        struct {
+            uint8_t rs;
+            uint8_t rt;
+            uint8_t rd;
+            uint8_t shamt;
+            uint8_t funct;
+        } RType;
 
-    uint8_t opcode;        
-    uint8_t rs, rt, rd;
+        struct {
+            uint8_t rs;
+            uint8_t rt;
+            uint16_t imm;
+        } IType;
+
+        struct {
+            uint32_t address;
+        } JType;
+
+    } value;
 
 } Instruction;
 

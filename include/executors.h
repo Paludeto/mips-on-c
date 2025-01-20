@@ -18,7 +18,7 @@ void execute_addi(char **operands, Register *r_array);
 void execute_move(char **operands, Register *r_array);
 void execute_slt(char **operands, Register *r_array);
 void execute_slti(char **operands, Register *r_array);
-void execute_la(char **operands, Register *r_array, Label *label_arr);
+void execute_la(char **operands, Register *r_array);
 void execute_lw(char **operands, Register *r_array);
 void execute_sw(char **operands, Register *r_array);
 void execute_syscall(char **operands, Register *r_array);

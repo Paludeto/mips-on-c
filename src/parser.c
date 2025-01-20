@@ -85,6 +85,8 @@ void parseFile(char *file_name) {
 }
 
 void tokenize_line(char *line, char *current_mode) {
+    static int curr_label = 0;  // Track the current label index
+    static int instruction_address = 0;  // Track instruction address in the array
 
     const char delimiters[] = " \t,";
     char *token = strtok(line, delimiters);
@@ -95,10 +97,18 @@ void tokenize_line(char *line, char *current_mode) {
     char *label_name = NULL;
     size_t token_len = strlen(token);
     if (token[token_len - 1] == ':') {
-        token[token_len - 1] = '\0'; // Remove ':'
-        label_name = token;          // Capture label name
-        token = strtok(NULL, delimiters); // Move to the next token
-        if (token == NULL) return;       // Line has only a label
+        token[token_len - 1] = '\0';  // Remove ':'
+        label_name = token;           // Capture label name
+
+        // Store label and address in label array
+        if (strcasecmp(current_mode, ".text") == 0) {
+            strcpy(label_arr[curr_label].name, label_name);
+            label_arr[curr_label].address = instruction_address;
+            curr_label++;
+        }
+
+        token = strtok(NULL, delimiters);  // Move to the next token
+        if (token == NULL) return;         // Line has only a label
     }
 
     // Check for section markers
@@ -137,5 +147,9 @@ void tokenize_line(char *line, char *current_mode) {
         }
 
         validate_inst(instruction, operands, operand_count);
+
+        // Increment instruction address after processing each instruction
+        instruction_address++;
     }
+    
 }

@@ -16,18 +16,19 @@ void validate_inst(const char *instruction, char **operands, int operand_count) 
 
     // validate operands and store them in instruction
     if (!validate_operands(inst_def, operands, operand_count)) {
+        printf("Operands are invalid for %s\n", inst_def->name);
         return;
     }
 
-    // debug purposes
-    printf("%s %s, %s, %s\n", instruction, operands[0], operands[1], operands[2]);
-
     // store instruction in Instruction array 
+    extract_op(inst_def, operands, operand_count);
 
 }
 
+// could change strcmp to opcode validation instead, less expensive btw
 // Validate operands based on instruction definition
 bool validate_operands(const InstructionInfo *inst_def, char **operands, int operand_count) {
+
     // Check if the operand count matches
     if (inst_def->op_count != operand_count) {
         printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
@@ -105,6 +106,18 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
 
             break;
 
+        case J:
+
+            if (!is_label(operands[0]) && !is_immediate(operands[0])) {
+                return false;
+            }
+
+            if (is_label(operands[0]) && find_label_address(operands[0]) == -1) {
+                return false;
+            }
+
+            break;
+
         case P:
 
             if (strcmp(inst_def->name, "li") == 0) {
@@ -157,9 +170,148 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
             return false;
     }
 
-    // after operators are validated extract them in a function
+    return true;
+
+}
+
+bool extract_op(const InstructionInfo *inst_def, char **operands, int operand_count) {
+
+    if (!validate_operands(inst_def, operands, operand_count)) {
+        printf("Invalid instruction!\n");
+        return false;
+    }
+
+    Instruction new_inst;
+    new_inst.opcode = inst_def->opcode;
+    new_inst.type = inst_def->type;
+
+    switch (new_inst.type) {
+
+        case R: 
+            
+            // standard values
+            new_inst.value.RType.funct = inst_def->funct;
+            new_inst.value.RType.shamt = 0;
+
+            // sll
+            if (new_inst.value.RType.funct == 0x00) {
+                new_inst.value.RType.rd = get_register_index(operands[0]);
+                new_inst.value.RType.rt = get_register_index(operands[1]);
+                new_inst.value.RType.shamt = atoi(operands[2]);
+            } else if (new_inst.value.RType.funct == 0x18) {    // mult
+                new_inst.value.RType.rs = get_register_index(operands[0]);
+                new_inst.value.RType.rt = get_register_index(operands[1]);
+            } else {    // other cases
+                new_inst.value.RType.rd = get_register_index(operands[0]);
+                new_inst.value.RType.rs = get_register_index(operands[1]);
+                new_inst.value.RType.rt = get_register_index(operands[2]);
+            }
+
+            break;
+
+        case I:
+
+            if (new_inst.opcode == 0x23 || new_inst.opcode == 0x2B) {
+                new_inst.value.IType.rt = get_register_index(operands[0]);
+                new_inst.value.IType.imm = extract_address(operands[1]);
+                new_inst.value.IType.rs = extract_register(operands[1]);
+            } else {
+                new_inst.value.IType.rs = get_register_index(operands[0]);
+                new_inst.value.IType.rt = get_register_index(operands[1]);
+                new_inst.value.IType.imm = atoi(operands[2]);
+            }
+
+            break;
+
+        case J:
+            
+            if (is_label(operands[0])) {
+                new_inst.value.JType.address = find_label_address(operands[0]);
+            } else {
+                new_inst.value.JType.address = atoi(operands[0]);
+            }
+        
+            break;
+            
+        case P:
+            break;
+        case SYS:
+            break;
+        default:
+            return false;
+    }   
+
+    store_instruction_to_memory(current_text_address, new_inst);
+    current_text_address++;
 
     return true;
+
+}
+
+int extract_register(const char *operand) {
+
+    if (operand == NULL) {
+        return -1;
+    }
+
+    char *open_paren = strchr(operand, '(');
+    char *closed_paren = strchr(operand, ')');
+
+    if (open_paren == NULL || closed_paren == NULL) {
+        return -1;
+    }
+
+    // Extract the register name inside parentheses
+    size_t reg_len = closed_paren - open_paren - 1;
+    if (reg_len <= 0 || reg_len >= 8) { // Assuming max register name length is 7
+        return -1;
+    }
+
+    char reg[8];
+    strncpy(reg, open_paren + 1, reg_len);
+    reg[reg_len] = '\0';
+
+    return get_register_index(reg);
+
+}
+
+int extract_address(const char *operand) {
+
+    if (operand == NULL) {
+        return -1;
+    }
+
+    char *open_paren = strchr(operand, '(');
+    char *closed_paren = strchr(operand, ')');
+
+    if (open_paren == NULL || closed_paren == NULL) {
+        return -1;
+    }
+
+    // Extract the register name inside parentheses
+    size_t reg_len = closed_paren - open_paren - 1;
+    if (reg_len <= 0 || reg_len >= 8) { // Assuming max register name length is 7
+        return -1;
+    }
+
+    char reg[8];
+    strncpy(reg, open_paren + 1, reg_len);
+    reg[reg_len] = '\0';
+
+    // Check the offset part
+    size_t offset_len = open_paren - operand;
+    if (offset_len <= 0 || offset_len >= 16) { // Assuming max offset length
+        return -1;
+    }
+
+    char offset_str[16];
+    strncpy(offset_str, operand, offset_len);
+    offset_str[offset_len] = '\0';
+
+    // Validate offset is a number
+    char *endptr;
+
+    return strtol(offset_str, &endptr, 10);
 
 }
 
@@ -204,7 +356,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
 
              // If it's the first word and label_name is provided, map the label to this address
             if (i == 1 && label_name != NULL) {
-                add_label(label_arr, label_name, current_data_address);
+                add_label(label_name, current_data_address);
             }
 
             // Increment the data address by 4 bytes (size of a word)
@@ -232,7 +384,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         }
         // Update the data address
 
-        add_label(label_arr, label_name, current_data_address);
+        add_label(label_name, current_data_address);
         
         current_data_address += strlen(string_value) + 1; // +1 for null terminator
         

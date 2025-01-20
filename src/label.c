@@ -5,7 +5,7 @@ Label label_arr[MAX_LABELS];
 uint32_t curr_label = 0;
 
 // Add a label to the list
-void add_label(Label *label_arr, const char *name, uint32_t address) {
+void add_label(const char *name, uint32_t address) {
 
     if (curr_label >= MAX_LABELS) {
         fprintf(stderr, "Max amount of labels reached\n");
@@ -21,7 +21,7 @@ void add_label(Label *label_arr, const char *name, uint32_t address) {
 }
 
 // Print all labels in the list
-void print_label_list(Label *label_arr) {
+void print_label_list() {
 
     for (int i = 0; i < curr_label; i++) {
         printf("%s, 0x%X\n", label_arr[i].name, label_arr[i].address);
@@ -30,7 +30,7 @@ void print_label_list(Label *label_arr) {
 }
 
 // Find a label by name and return its address
-uint32_t find_label_address(Label *label_arr, const char *name) {
+uint32_t find_label_address(const char *name) {
 
     for (int i = 0; i < curr_label; i++) {
 

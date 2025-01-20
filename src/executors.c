@@ -139,12 +139,12 @@ void execute_slti(char **operands, Register *r_array) {
 
 }
 
-void execute_la(char **operands, Register *r_array, Label *label_arr) {
+void execute_la(char **operands, Register *r_array) {
 
     printf("Executing LA with operands %s, %s\n", operands[0], operands[1]);
 
     int rt = get_register_index(operands[0]);
-    uint32_t address = find_label_address(label_arr, operands[1]);
+    uint32_t address = find_label_address(operands[1]);
 
     // Null check if label is not found
     if (address == -1) {

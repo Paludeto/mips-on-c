@@ -16,6 +16,8 @@ InstructionInfo table[] = {
     {"lw",   I, 0x23, 0x00, 2},   // I-type: opcode = 0x23, funct = N/A (load word)
     {"sw",   I, 0x2B, 0x00, 2},   // I-type: opcode = 0x2B, funct = N/A (store word)
 
+    {"j",    J, 0x02, 0x00, 1},
+
     {"li",   P, 0x00, 0x00, 2},   // Pseudo-instruction: Needs translation
     {"la",   P, 0x00, 0x00, 2},   // Pseudo-instruction: Needs translation
 
