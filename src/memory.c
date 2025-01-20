@@ -6,7 +6,7 @@
 
 // Initialize memory array
 unsigned char data_memory[DATA_MEM_SIZE];
-uint32_t inst_memory[INST_MEM_SIZE];
+Instruction inst_memory[INST_MEM_SIZE];
 
 // Define the start address of the data segment (e.g., 0x00010000)
 uint32_t current_text_address = 0;
@@ -78,14 +78,15 @@ bool store_string_to_memory(uint32_t address, const char *string) {
 
 }
 
-bool store_instruction_to_memory(uint32_t address, uint32_t instruction) {
+// change this so its more high level encoding isnt really necessary we just need to map instructions to indexes
+bool store_instruction_to_memory(uint32_t address, Instruction instruction) {
 
-    if (address + sizeof(instruction) > INST_MEM_SIZE) {
+    if (address > INST_MEM_SIZE) {
         fprintf(stderr, "Insufficient instruction memory\n");
         return false;
     }
 
-    memcpy(&inst_memory[address], &instruction, sizeof(uint32_t));
+    inst_memory[address] = instruction;
 
     return true;
 

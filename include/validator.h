@@ -3,10 +3,9 @@
 
 #include "instructions.h"
 #include "memory.h"
-#include "encoder.h"
 #include <ctype.h>
 
-bool validate_operands(const Instruction *inst_def, char **operands, int operand_count);
+bool validate_operands(const InstructionInfo *inst_def, char **operands, int operand_count);
 void validate_inst(const char *instruction, char **operands, int operand_count);
 void validate_data_field(const char *label_name, char **args, int arg_count, Label *label_arr);
 

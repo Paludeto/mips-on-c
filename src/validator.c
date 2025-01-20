@@ -7,33 +7,27 @@ extern uint32_t program_counter;
 // Validate and execute an instruction
 void validate_inst(const char *instruction, char **operands, int operand_count) {
 
-    Instruction *inst_def = find_instruction(instruction);
+    InstructionInfo *inst_def = find_instruction(instruction);
 
     if (!inst_def) {
         printf("Error: Unknown instruction: %s\n", instruction);
         return;
     }
 
+    // validate operands and store them in instruction
     if (!validate_operands(inst_def, operands, operand_count)) {
         return;
     }
 
     // debug purposes
     printf("%s %s, %s, %s\n", instruction, operands[0], operands[1], operands[2]);
-    int binary = encode(inst_def, operands);
-    printf("Encoded instruction: 0x%08X\n", binary);
 
-    if (store_instruction_to_memory(current_text_address, binary)) {
-        fprintf(stderr, "Instruction stored\n");
-        current_text_address++;
-    } else {
-        fprintf(stderr, "Instruction storage failed\n");
-    }
-    
+    // store instruction in Instruction array 
+
 }
 
 // Validate operands based on instruction definition
-bool validate_operands(const Instruction *inst_def, char **operands, int operand_count) {
+bool validate_operands(const InstructionInfo *inst_def, char **operands, int operand_count) {
     // Check if the operand count matches
     if (inst_def->op_count != operand_count) {
         printf("Error: %s expects %d operands, found %d\n", inst_def->name, inst_def->op_count, operand_count);
@@ -46,7 +40,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
         case R:
 
             //SLL
-            if (is_immediate(operands[2])) {
+            if (strcmp(inst_def->name, "sll") && is_immediate(operands[2])) {
                 for (int i = 0; i < operand_count - 1; i++) {
                     if (!is_register(operands[i])) {
                         printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
@@ -57,11 +51,9 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             // mult
             } else if (strcmp(inst_def->name, "mult")) {
 
-                if (is_register(operands[0]) && is_register(operands[1])) {
-                    return true;
+                if (!is_register(operands[0]) || !is_register(operands[1])) {
+                    return false;
                 }
-
-                return false;
 
             } else {    // Other R-type instructions
                 for (int i = 0; i < operand_count; i++) {
@@ -76,6 +68,7 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             break;
 
         case I:
+
             if (strcmp(inst_def->name, "lw") == 0 || strcmp(inst_def->name, "sw") == 0) {
                 
                 if (!is_register(operands[0])) {
@@ -164,6 +157,8 @@ bool validate_operands(const Instruction *inst_def, char **operands, int operand
             return false;
     }
 
+    // after operators are validated extract them in a function
+
     return true;
 
 }
@@ -240,9 +235,11 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         add_label(label_arr, label_name, current_data_address);
         
         current_data_address += strlen(string_value) + 1; // +1 for null terminator
+        
     } else {
         printf("Error: Unsupported directive %s in data field\n", args[0]);
     }
+
 }
 
 // Helper functions

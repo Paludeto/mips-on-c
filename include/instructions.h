@@ -16,16 +16,32 @@ typedef enum InstructionType {
     UNKNOWN
 } InstructionType;
 
-// Dispatcher pattern, where we map the instruction's name to a function in a table via function pointers
-// Each instruction has its own executor function in the table
+// Actual instructions
 typedef struct Instruction {
-    char *name;
+
     InstructionType type;
-    uint32_t opcode;
-    uint32_t funct;
-    uint32_t op_count;
+
+    union {
+        uint8_t funct;    
+        uint16_t imm;      
+        uint32_t address;  
+    } value;             
+
+    uint8_t opcode;        
+    uint8_t rs, rt, rd;
+
 } Instruction;
 
-Instruction *find_instruction(const char *name);
+typedef struct InstructionInfo {
+    
+    char *name;
+    InstructionType type;
+    uint8_t opcode;
+    uint8_t funct;
+    uint8_t op_count;
+    
+} InstructionInfo;
+
+InstructionInfo *find_instruction(const char *name);
 
 #endif
