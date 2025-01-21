@@ -23,5 +23,7 @@ void execute_sw(Instruction inst);
 void execute_syscall(Instruction inst);
 void execute_li(Instruction inst);
 void execute_pseudo_inst(Instruction inst);
+void execute_j(Instruction inst);
+void execute_instructions();
 
 #endif // EXECUTORS_H

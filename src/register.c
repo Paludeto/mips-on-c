@@ -1,6 +1,7 @@
 #include <register.h>
 
 Register r_array[REG_NUM];
+uint32_t pc = 0;
 
 const char *valid_registers[] = {
     "$zero", "$at", "$v0", "$v1",

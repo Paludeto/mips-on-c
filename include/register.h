@@ -7,6 +7,8 @@
 
 #define REG_NUM 32
 
+extern uint32_t pc;
+
 typedef struct Register {
     char name[5];
     __int32_t number;

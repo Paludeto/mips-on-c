@@ -46,7 +46,7 @@
 // }
 
 // Function to parse the entire file
-void parseFile(char *file_name) {
+void parse_file(char *file_name) {
 
     FILE *fp = fopen(file_name, "r");
     char line[MAX_INPUT_SIZE];
@@ -95,18 +95,10 @@ void tokenize_line(char *line, char *current_mode) {
     char *label_name = NULL;
     size_t token_len = strlen(token);
     if (token[token_len - 1] == ':') {
-        token[token_len - 1] = '\0';  // Remove ':'
-        label_name = token;           // Capture label name
-
-        // Store label and address in label array
-        if (strcasecmp(current_mode, ".text") == 0) {
-            strcpy(label_arr[curr_label].name, label_name);
-            label_arr[curr_label].address = current_text_address;
-            curr_label++;
-        }
-
-        token = strtok(NULL, delimiters);  // Move to the next token
-        if (token == NULL) return;         // Line has only a label
+        token[token_len - 1] = '\0'; // Remove ':'
+        label_name = token;          // Capture label name
+        token = strtok(NULL, delimiters); // Move to the next token
+        if (token == NULL) return;       // Line has only a label
     }
 
     // Check for section markers
@@ -145,7 +137,5 @@ void tokenize_line(char *line, char *current_mode) {
         }
 
         validate_inst(instruction, operands, operand_count);
-
     }
-    
 }

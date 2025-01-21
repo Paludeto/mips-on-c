@@ -42,7 +42,7 @@ InstructionHandler jump_table[64] = {
     [0x23] = execute_lw,    // I-type LW (opcode 0x23)
     [0x2B] = execute_sw,    // I-type SW (opcode 0x2B)
     
-    // [0x02] = execute_j,     // J-type J (opcode 0x02) 
+    [0x02] = execute_j,     // J-type J (opcode 0x02) 
 
 };
 

@@ -107,12 +107,8 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
             break;
 
         case J:
-
+            
             if (!is_label(operands[0]) && !is_immediate(operands[0])) {
-                return false;
-            }
-
-            if (is_label(operands[0]) && find_label_address(operands[0]) == -1) {
                 return false;
             }
 
