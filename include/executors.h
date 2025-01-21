@@ -7,21 +7,21 @@
 #include "memory.h"    // Include memory functions
 
 // Function prototypes for executors
-void execute_add(char **operands, Register *r_array);
-void execute_sub(char **operands, Register *r_array);
-void execute_mult(char **operands, Register *r_array);
-void execute_and(char **operands, Register *r_array);
-void execute_or(char **operands, Register *r_array);
-void execute_sll(char **operands, Register *r_array);
-void execute_lui(char **operands, Register *r_array);
-void execute_addi(char **operands, Register *r_array);
-void execute_move(char **operands, Register *r_array);
-void execute_slt(char **operands, Register *r_array);
-void execute_slti(char **operands, Register *r_array);
-void execute_la(char **operands, Register *r_array);
-void execute_lw(char **operands, Register *r_array);
-void execute_sw(char **operands, Register *r_array);
-void execute_syscall(char **operands, Register *r_array);
-void execute_li(char **operands, Register *r_array);
+void execute_add(Instruction inst);
+void execute_sub(Instruction inst);
+void execute_mult(Instruction inst);
+void execute_and(Instruction inst);
+void execute_or(Instruction inst);
+void execute_sll(Instruction inst);
+void execute_lui(Instruction inst);
+void execute_addi(Instruction inst);
+void execute_slt(Instruction inst);
+void execute_slti(Instruction inst);
+void execute_la(Instruction inst);
+void execute_lw(Instruction inst);
+void execute_sw(Instruction inst);
+void execute_syscall(Instruction inst);
+void execute_li(Instruction inst);
+void execute_pseudo_inst(Instruction inst);
 
 #endif // EXECUTORS_H

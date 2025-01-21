@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include "register.h"
 #include "label.h"
+#include <stdbool.h>
 
 typedef enum InstructionType {
     R,
@@ -24,7 +25,7 @@ typedef struct Instruction {
     InstructionType type;
 
     union {
-        
+
         struct {
             uint8_t rs;
             uint8_t rt;
@@ -43,6 +44,18 @@ typedef struct Instruction {
             uint32_t address;
         } JType;
 
+        struct {
+
+            uint8_t rt;
+            bool is_label;
+
+            union {
+                uint32_t address;
+                uint32_t imm;    
+            } data;
+
+        } PType;
+
     } value;
 
 } Instruction;
@@ -56,6 +69,9 @@ typedef struct InstructionInfo {
     uint8_t op_count;
     
 } InstructionInfo;
+
+typedef void (*InstructionHandler)(Instruction);
+extern InstructionHandler jump_table[];
 
 InstructionInfo *find_instruction(const char *name);
 

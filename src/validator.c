@@ -232,9 +232,21 @@ bool extract_op(const InstructionInfo *inst_def, char **operands, int operand_co
             }
         
             break;
-            
+
         case P:
+
+            new_inst.value.PType.rt = get_register_index(operands[0]);
+
+            if (is_label(operands[1])) {
+                new_inst.value.PType.is_label = true;
+                new_inst.value.PType.data.address = find_label_address(operands[1]);
+            } else {
+                new_inst.value.PType.is_label = false;
+                new_inst.value.PType.data.imm = atoi(operands[1]);
+            }
+
             break;
+
         case SYS:
             break;
         default:
