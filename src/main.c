@@ -6,9 +6,7 @@
 #include "executors.h"
 
 int main(void) {
-
-	initialize_memory();         
-
+  
 	init_registers(r_array);
 
 	parse_file("test.s");
@@ -27,9 +25,6 @@ int main(void) {
 
 	// Table footer
 	printf("+-----------+------------+\n");
-		for (int i = 0; i < curr_label; i++) {
-		printf("%s, %d\n", label_arr[i].name, label_arr[i].address);
-	}
 
 	return 0;
 

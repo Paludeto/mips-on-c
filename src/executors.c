@@ -127,7 +127,7 @@ void execute_syscall(Instruction inst) {
 
 void execute_j(Instruction inst) {
 
-    pc = inst.value.JType.address * 4;
+    pc = inst.value.JType.address;
 
 }
 

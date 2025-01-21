@@ -10,98 +10,89 @@
 #define MAX_INPUT_SIZE 256
 #define MAX_OPERANDS 4
 
-// void interactive_parse() {
-
-//     char line[MAX_INPUT_SIZE];
-//     char current_mode[16] = ""; // Controla o contexto atual (data ou text)
-//     printf("Modo Interativo: Digite uma instrução ou '.exit' para sair.\n");
-
-//     while (1) {
-        
-//         printf("> "); // Prompt interativo
-//         if (fgets(line, sizeof(line), stdin) == NULL) {
-//             break; // EOF ou erro de leitura
-//         }
-
-//         // Remove caracteres de nova linha
-//         size_t len = strlen(line);
-//         while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
-//             line[len - 1] = '\0';
-//             len--;
-//         }
-
-//         // Ignorar linhas vazias
-//         if (len == 0) continue;
-
-//         // Verificar comando de saída
-//         if (strcmp(line, ".exit") == 0) {
-//             printf("Saindo do modo interativo.\n");
-//             break;
-//         }
-
-//         // Reutilizar tokenize_line para processar a entrada
-//         tokenize_line(line, current_mode);
-//     }
-
-// 
-
-// Function to parse the entire file
 void parse_file(char *file_name) {
 
-    FILE *fp = fopen(file_name, "r");
+    FILE *fp;
     char line[MAX_INPUT_SIZE];
     char current_mode[16] = "";
+    bool is_first_read = true;
+    int inst_line = 0;
 
-    if (fp == NULL) {
+    if ((fp = fopen(file_name, "r")) == NULL) {
         perror("File could not be opened");
         return;
     }
-    
+
     initialize_memory();
 
+    // First pass: Collect labels
+    printf("Running first pass to collect labels...\n");
     while (fgets(line, sizeof(line), fp)) {
-        // Remove newline characters
-        size_t len = strlen(line);
-        while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
-            line[len - 1] = '\0';
-            len--;
-        }
+        clean_line(line);
+        tokenize_line(line, current_mode, &is_first_read, &inst_line);
+    }
 
-        // Remove comments
-        char *comment = strchr(line, '#');
-        if (comment) *comment = '\0';
+    // Reset and re-parse for instructions
+    rewind(fp);
+    is_first_read = false;
+    inst_line = 0;
 
-        // Trim leading whitespace
-        char *start = line;
-        while (isspace(*start)) start++;
-
-        if (*start == '\0') continue; // Skip empty lines
-
-        tokenize_line(start, current_mode);
+    printf("Running second pass to process instructions...\n");
+    while (fgets(line, sizeof(line), fp)) {
+        clean_line(line);
+        tokenize_line(line, current_mode, &is_first_read, &inst_line);
     }
 
     fclose(fp);
 
 }
 
-void tokenize_line(char *line, char *current_mode) {
+void clean_line(char *line) {
+
+    size_t len = strlen(line);
+    while (len > 0 && (line[len - 1] == '\n' || line[len - 1] == '\r')) {
+        line[len - 1] = '\0';
+        len--;
+    }
+
+    char *comment = strchr(line, '#');
+    if (comment) *comment = '\0';
+
+    while (isspace(*line)) line++;
+
+}
+
+void tokenize_line(char *line, char *current_mode, bool *is_first_read, int *inst_line) {
 
     const char delimiters[] = " \t,";
     char *token = strtok(line, delimiters);
 
-    if (token == NULL) return; // Empty line
+    if (token == NULL) return; // Skip empty lines
 
-    // Capture label if it exists
-    char *label_name = NULL;
+    char *label_name = NULL;  // Declare label name outside
+
+    // Detect label
     size_t token_len = strlen(token);
+
     if (token[token_len - 1] == ':') {
-        token[token_len - 1] = '\0'; // Remove ':'
-        label_name = token;          // Capture label name
-        token = strtok(NULL, delimiters); // Move to the next token
-        if (token == NULL) return;       // Line has only a label
+        token[token_len - 1] = '\0';  // Remove ':'
+        label_name = token;
+
+        if (*is_first_read) {
+            if (strcasecmp(current_mode, ".text") == 0) {
+                add_label(label_name, (*inst_line));  // Convert instruction count to byte address
+                printf("Label detected: %s at instruction line %d\n", label_name, *inst_line);
+            } else if (strcasecmp(current_mode, ".data") == 0) {
+                add_label(label_name, current_data_address);
+                printf("Label detected: %s at data address %d\n", label_name, current_data_address);
+            }
+        }
+
+        token = strtok(NULL, delimiters);
+        if (token == NULL) return;  // If only a label exists, move on
     }
 
-    // Check for section markers
+    // Check section markers
     if (is_data_field(token)) {
         strcpy(current_mode, ".data");
         return;
@@ -111,22 +102,23 @@ void tokenize_line(char *line, char *current_mode) {
     }
 
     if (strcasecmp(current_mode, ".data") == 0) {
-        // Process data directives
+        // Process .data directives
         char *args[MAX_DIR];
         int arg_count = 0;
 
-        args[arg_count++] = token; // Directive
+        args[arg_count++] = token;  // Directive
 
         while ((token = strtok(NULL, delimiters)) != NULL) {
             args[arg_count++] = token;
         }
 
-        if (arg_count > 0) {
+        if (arg_count > 0 && !(*is_first_read)) {
+            // Pass the detected label name to the validation function
             validate_data_field(label_name, args, arg_count, label_arr);
         }
 
     } else if (strcasecmp(current_mode, ".text") == 0) {
-        // Process instructions
+        // Process .text instructions
         char *instruction = token;
         char *operands[MAX_OPERANDS];
         int operand_count = 0;
@@ -136,7 +128,11 @@ void tokenize_line(char *line, char *current_mode) {
             if (operand_count >= MAX_OPERANDS) break;
         }
 
-        validate_inst(instruction, operands, operand_count);
+        if (!(*is_first_read)) {
+            validate_inst(instruction, operands, operand_count);
+        }
+
+        (*inst_line)++;  // Increment instruction line count
     }
 
 }

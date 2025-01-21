@@ -11,7 +11,6 @@ Instruction inst_memory[INST_MEM_SIZE];
 // Define the start address of the data segment (e.g., 0x00010000)
 uint32_t current_text_address = 0;
 uint32_t current_data_address = 0;
-uint32_t program_counter = 0;
 
 // Initialize memory (optional: set to zero)
 void initialize_memory() {
@@ -78,7 +77,6 @@ bool store_string_to_memory(uint32_t address, const char *string) {
 
 }
 
-// change this so its more high level encoding isnt really necessary we just need to map instructions to indexes
 bool store_instruction_to_memory(uint32_t address, Instruction instruction) {
 
     if (address > INST_MEM_SIZE) {
