@@ -61,6 +61,8 @@ int main(void) {
 			jump_table[inst_memory[i].opcode](inst_memory[i]);
 		} else if (inst_memory[i].type == P) {
 			execute_pseudo_inst(inst_memory[i]);
+		} else if (inst_memory[i].type == SYS) {
+			execute_syscall(inst_memory[i]);
 		}
 	}
 		// Table headers
