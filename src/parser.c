@@ -43,7 +43,7 @@
 //         tokenize_line(line, current_mode);
 //     }
 
-// }
+// 
 
 // Function to parse the entire file
 void parse_file(char *file_name) {
@@ -138,4 +138,5 @@ void tokenize_line(char *line, char *current_mode) {
 
         validate_inst(instruction, operands, operand_count);
     }
+
 }

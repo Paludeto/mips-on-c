@@ -27,6 +27,9 @@ int main(void) {
 
 	// Table footer
 	printf("+-----------+------------+\n");
+		for (int i = 0; i < curr_label; i++) {
+		printf("%s, %d\n", label_arr[i].name, label_arr[i].address);
+	}
 
 	return 0;
 
