@@ -1,8 +1,8 @@
-// memory.c
-#include "memory.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "memory.h"
 
 // Initialize memory array
 unsigned char data_memory[DATA_MEM_SIZE];
