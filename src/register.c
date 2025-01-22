@@ -27,7 +27,7 @@ void init_registers(Register *r_arr) {
 
 // Obtains register index
 int get_register_index(const char *reg) {
-
+    
     for (int i = 0; valid_registers[i] != NULL; i++) {
         if (strcmp(reg, valid_registers[i]) == 0) {
             return i;

@@ -4,6 +4,7 @@
 
 #include "../include/parser.h"
 #include "executors.h"
+#include "encoder.h"
 
 int main(void) {
   
@@ -25,6 +26,8 @@ int main(void) {
 
 	// Table footer
 	printf("+-----------+------------+\n");
+
+	encode_inst_arr(inst_memory);
 
 	return 0;
 

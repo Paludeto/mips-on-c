@@ -26,7 +26,6 @@ void parse_file(char *file_name) {
     initialize_memory();
 
     // First pass: Collect labels
-    printf("Running first pass to collect labels...\n");
     while (fgets(line, sizeof(line), fp)) {
         clean_line(line);
         tokenize_line(line, current_mode, &is_first_read, &inst_line);
@@ -37,7 +36,6 @@ void parse_file(char *file_name) {
     is_first_read = false;
     inst_line = 0;
 
-    printf("Running second pass to process instructions...\n");
     while (fgets(line, sizeof(line), fp)) {
         clean_line(line);
         tokenize_line(line, current_mode, &is_first_read, &inst_line);
@@ -81,10 +79,8 @@ void tokenize_line(char *line, char *current_mode, bool *is_first_read, int *ins
         if (*is_first_read) {
             if (strcasecmp(current_mode, ".text") == 0) {
                 add_label(label_name, (*inst_line));  // Convert instruction count to byte address
-                printf("Label detected: %s at instruction line %d\n", label_name, *inst_line);
             } else if (strcasecmp(current_mode, ".data") == 0) {
                 add_label(label_name, current_data_address);
-                printf("Label detected: %s at data address %d\n", label_name, current_data_address);
             }
         }
 
