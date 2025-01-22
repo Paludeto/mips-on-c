@@ -1,4 +1,7 @@
+#include <stdio.h>
+
 #include "encoder.h"
+#include "memory.h"
 
 int encode_instruction(Instruction inst) {
 

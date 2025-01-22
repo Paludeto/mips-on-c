@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "instructions.h"
 #include "executors.h"
 

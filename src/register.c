@@ -1,4 +1,7 @@
-#include <register.h>
+#include <string.h>
+#include <stdio.h>
+
+#include "register.h"
 
 Register r_array[REG_NUM];
 uint32_t pc = 0;
@@ -15,14 +18,28 @@ const char *valid_registers[] = {
     NULL // Sentinel
 };
 
-void init_registers(Register *r_arr) {
+void init_registers() {
 
     for (int i = 0; valid_registers[i] != NULL; i++) {
-        strncpy(r_arr[i].name, valid_registers[i], 5);
-        r_arr[i].number = i;
-        r_arr[i].value = 0;
+        strncpy(r_array[i].name, valid_registers[i], 5);
+        r_array[i].number = i;
+        r_array[i].value = 0;
     }
     
+}
+
+void print_reg_table() {
+    
+	printf("+-----------+------------+\n");
+	printf("| Register  | Value      |\n");
+	printf("+-----------+------------+\n");
+
+	for (int i = 0; i < REG_NUM; i++) {
+		printf("| %-9s | %-10d |\n", r_array[i].name, r_array[i].value);
+	}
+
+	printf("+-----------+------------+\n");
+
 }
 
 // Obtains register index

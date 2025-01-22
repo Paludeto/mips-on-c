@@ -2,8 +2,6 @@
 #define REGISTER_H
 
 #include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define REG_NUM 32
 
@@ -17,7 +15,8 @@ typedef struct Register {
 
 extern Register r_array[REG_NUM];
 
-void init_registers(Register *regArray);
+void init_registers();
+void print_reg_table();
 int get_register_index(const char *reg);
 
 #endif

@@ -1,9 +1,13 @@
 // parser.c
-#include "parser.h"
+#include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+
+#include "parser.h"
+#include "validator.h"
+#include "label.h"
+#include "memory.h"
 
 // Define maximums
 #define MAX_DIR 128

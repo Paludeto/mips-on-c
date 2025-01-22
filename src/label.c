@@ -1,3 +1,5 @@
+#include <string.h>
+#include <stdio.h>
 
 #include "label.h"
 

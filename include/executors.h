@@ -2,10 +2,7 @@
 #ifndef EXECUTORS_H
 #define EXECUTORS_H
 
-#include "parser.h"    // Assuming parser.h defines Register, LabelList, etc.
-#include "register.h"
-#include "memory.h"    // Include memory functions
-#include "encoder.h"
+#include "instructions.h"
 
 // Function prototypes for executors
 void execute_add(Instruction inst);

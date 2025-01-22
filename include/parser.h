@@ -1,11 +1,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <stdio.h>
-#include <string.h>
-#include "label.h"
-#include "validator.h"
-
 // Function prototypes
 void clean_line(char *line);
 void parse_file(char *file_name);

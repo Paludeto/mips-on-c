@@ -1,4 +1,8 @@
 #include "executors.h"
+#include "register.h"
+#include "memory.h"   
+#include "encoder.h"
+
 #include <stdio.h>
 
 void execute_add(Instruction inst) {

@@ -2,9 +2,6 @@
 #ifndef LABEL_H
 #define LABEL_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
 #include <stdint.h>
 
 #define MAX_LABELS 500

@@ -2,8 +2,7 @@
 #define VALIDATOR_H
 
 #include "instructions.h"
-#include "memory.h"
-#include <ctype.h>
+#include "label.h"
 
 bool validate_operands(const InstructionInfo *inst_def, char **operands, int operand_count);
 void validate_inst(const char *instruction, char **operands, int operand_count);

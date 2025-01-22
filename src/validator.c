@@ -1,4 +1,11 @@
+#include <ctype.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "validator.h"
+#include "memory.h"
+#include "register.h"
 
 extern uint32_t current_data_address;
 extern uint32_t current_text_address;

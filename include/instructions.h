@@ -1,12 +1,8 @@
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include "register.h"
-#include "label.h"
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef enum InstructionType {
     R,
