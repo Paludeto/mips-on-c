@@ -13,7 +13,6 @@ typedef enum InstructionType {
     I,
     J,
     P,
-    SYS,
     UNKNOWN
 } InstructionType;
 

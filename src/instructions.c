@@ -21,7 +21,7 @@ InstructionInfo table[] = {
     {"li",   P, 0x00, 0x00, 2},   // Pseudo-instruction: Needs translation
     {"la",   P, 0x00, 0x00, 2},   // Pseudo-instruction: Needs translation
 
-    {"syscall", SYS, 0x00, 0x0C, 0}, // System call
+    {"syscall", R, 0x00, 0x0C, 0}, // System call
 
     {NULL, UNKNOWN, 0x00, 0x00, 0}  // Sentinel to mark the end
 };  
@@ -43,6 +43,7 @@ InstructionHandler jump_table[64] = {
     [0x2B] = execute_sw,    // I-type SW (opcode 0x2B)
     
     [0x02] = execute_j,     // J-type J (opcode 0x02) 
+    [0x0C] = execute_syscall,
 
 };
 

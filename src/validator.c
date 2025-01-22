@@ -41,7 +41,8 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
         case R:
 
             //SLL
-            if (strcmp(inst_def->name, "sll") && is_immediate(operands[2])) {
+            if (strcmp(inst_def->name, "sll") == 0 && is_immediate(operands[2]) == 0) {
+
                 for (int i = 0; i < operand_count - 1; i++) {
                     if (!is_register(operands[i])) {
                         printf("Error: Operand %d (%s) is not a valid register for instruction %s\n",
@@ -49,8 +50,15 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
                         return false;
                     }
                 }
-            // mult
-            } else if (strcmp(inst_def->name, "mult")) {
+
+            } else if (strcmp(inst_def->name, "syscall") == 0) {
+
+                if (operand_count != 0) {
+                    printf("Error: syscall takes no operands\n");
+                    return false;
+                }
+
+            } else if (strcmp(inst_def->name, "mult") == 0) {
 
                 if (!is_register(operands[0]) || !is_register(operands[1])) {
                     return false;
@@ -152,15 +160,6 @@ bool validate_operands(const InstructionInfo *inst_def, char **operands, int ope
 
             break;
 
-        case SYS:
-
-            if (operand_count != 0) {
-                printf("Error: syscall takes no arguments\n");
-                return false;
-            }
-
-            break;
-
         default:
             printf("Error: Unsupported instruction type for %s\n", inst_def->name);
             return false;
@@ -197,6 +196,10 @@ bool extract_op(const InstructionInfo *inst_def, char **operands, int operand_co
             } else if (new_inst.value.RType.funct == 0x18) {    // mult
                 new_inst.value.RType.rs = get_register_index(operands[0]);
                 new_inst.value.RType.rt = get_register_index(operands[1]);
+            } else if (new_inst.value.RType.funct == 0x0C) { //syscall
+                new_inst.value.RType.rd = 0;
+                new_inst.value.RType.rs = 0;
+                new_inst.value.RType.rt = 0;
             } else {    // other cases
                 new_inst.value.RType.rd = get_register_index(operands[0]);
                 new_inst.value.RType.rs = get_register_index(operands[1]);
@@ -243,8 +246,6 @@ bool extract_op(const InstructionInfo *inst_def, char **operands, int operand_co
 
             break;
 
-        case SYS:
-            break;
         default:
             return false;
     }   

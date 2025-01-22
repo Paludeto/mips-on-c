@@ -145,14 +145,7 @@ void execute_instructions() {
                 execute_pseudo_inst(current_inst);
                 pc++; // Move to the next instruction
                 break;
-
-            case SYS:
-
-                execute_syscall(current_inst);
-                pc++; // Prevent infinite loops on unknown instructions
-
-                break;
-
+                
             default:
         
                 pc++; // Prevent infinite loops on unknown instructions
