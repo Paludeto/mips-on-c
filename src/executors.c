@@ -1,5 +1,4 @@
 #include "executors.h"
-#include "memory.h"
 #include <stdio.h>
 
 void execute_add(Instruction inst) {
@@ -117,10 +116,17 @@ void execute_j(Instruction inst) {
 
 void execute_instructions() {
 
+    int binary;
+
     while (pc < current_text_address) {
 
         Instruction current_inst = inst_memory[pc];
+        binary = encode_instruction(current_inst);
 
+        if (binary != -1) {
+            print_binary(binary);
+        }
+    
         switch (current_inst.type) {
 
             case R:
@@ -145,7 +151,7 @@ void execute_instructions() {
                 execute_pseudo_inst(current_inst);
                 pc++; // Move to the next instruction
                 break;
-                
+
             default:
         
                 pc++; // Prevent infinite loops on unknown instructions

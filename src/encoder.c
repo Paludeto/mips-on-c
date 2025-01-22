@@ -27,13 +27,11 @@ int encode_instruction(Instruction inst) {
             binary = (inst.opcode << 26) | (inst.value.JType.address & 0x03FFFFFF);
 
             break;
+            
+        default:
 
-        // case P: 
-
-        // /*case SYS: {
-
-        // }*/
-
+            printf("Pseudo-instruction cannot be encoded\n");
+            break;
     }
 
     return binary;
@@ -45,6 +43,8 @@ void print_binary(int num) {
     for (int i = 31; i >= 0; i--) {  
         printf("%d", (num >> i) & 1);  // Print each bit
     }
+
+    printf("\n");
 
 }
 

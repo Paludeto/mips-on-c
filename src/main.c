@@ -27,8 +27,6 @@ int main(void) {
 	// Table footer
 	printf("+-----------+------------+\n");
 
-	encode_inst_arr(inst_memory);
-
 	return 0;
 
 }
