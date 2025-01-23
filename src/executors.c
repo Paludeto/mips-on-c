@@ -1,9 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "executors.h"
 #include "register.h"
 #include "memory.h"   
 #include "encoder.h"
-
-#include <stdio.h>
 
 void execute_add(Instruction inst) {
 
@@ -73,6 +74,7 @@ void execute_lw(Instruction inst) {
         r_array[inst.value.IType.rt].value = loaded_value;
     } else {
         printf("Error: Failed to load word from memory at address %u\n", address);
+        exit(EXIT_FAILURE);
     }
 
 }
@@ -110,6 +112,7 @@ void execute_syscall(Instruction inst) {
             return;
         default:
             printf("Error: Unsupported syscall code %d\n", syscall_code);
+            exit(EXIT_FAILURE);
             break;
     }
 
@@ -123,16 +126,9 @@ void execute_j(Instruction inst) {
 
 void execute_instructions() {
 
-    int binary;
-
     while (pc < current_text_address) {
 
         Instruction current_inst = inst_memory[pc];
-        binary = encode_instruction(current_inst);
-
-        if (binary != -1) {
-            print_binary(binary);
-        }
     
         switch (current_inst.type) {
 

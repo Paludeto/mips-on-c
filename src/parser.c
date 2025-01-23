@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdlib.h>
 
 #include "parser.h"
 #include "validator.h"
@@ -24,7 +25,7 @@ void parse_file(char *file_name) {
 
     if ((fp = fopen(file_name, "r")) == NULL) {
         perror("File could not be opened");
-        return;
+        exit(EXIT_FAILURE);
     }
 
     initialize_memory();

@@ -23,3 +23,5 @@ set(SOURCES
 
 # Add executable
 add_executable(mips_simulator ${SOURCES})
+
+add_compile_options(-O3, -WAll)

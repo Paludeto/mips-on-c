@@ -18,17 +18,19 @@ void validate_inst(const char *instruction, char **operands, int operand_count) 
 
     if (!inst_def) {
         printf("Error: Unknown instruction: %s\n", instruction);
-        return;
+        exit(EXIT_FAILURE);        
     }
 
     // validate operands and store them in instruction
     if (!validate_operands(inst_def, operands, operand_count)) {
         printf("Operands are invalid for %s\n", inst_def->name);
-        return;
+        exit(EXIT_FAILURE);
     }
 
     // store instruction in Instruction array 
-    extract_op(inst_def, operands, operand_count);
+    if (!extract_op(inst_def, operands, operand_count)) {
+        exit(EXIT_FAILURE);
+    }
 
 }
 
@@ -336,13 +338,13 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
 
     if (arg_count < 2) { // Minimum: directive and at least one value
         printf("Error: Insufficient arguments in data field\n");
-        return;
+        exit(EXIT_FAILURE);
     }
 
     // Validate the directive
     if (!is_directive(args[0])) {
         printf("Error: Invalid directive in data field: %s\n", args[0]);
-        return;
+        exit(EXIT_FAILURE);
     }
 
     // Handle `.word` directive
@@ -357,9 +359,10 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
             // Convert to integer
             char *endptr;
             long value_long = strtol(args[i], &endptr, 10);
+
             if (*endptr != '\0') {
                 printf("Error: Invalid immediate value: %s\n", args[i]);
-                continue;
+                exit(EXIT_FAILURE);
             }
 
             uint32_t value = (uint32_t)value_long;
@@ -367,7 +370,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
             // Store in simulated memory
             if (!store_word_to_memory(current_data_address, value)) {
                 printf("Error: Failed to store word at address 0x%X\n", current_data_address);
-                return;
+                exit(EXIT_FAILURE);
             }
 
              // If it's the first word and label_name is provided, map the label to this address
@@ -383,7 +386,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         // Ensure label exists
         if (label_name == NULL) {
             printf("Error: Missing label for string directive.\n");
-            return;
+            exit(EXIT_FAILURE);
         }
 
         // Combine arguments into a single string
@@ -396,7 +399,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         // Store the string in memory
         if (!store_string_to_memory(current_data_address, string_value)) {
             printf("Error: Failed to store string at address 0x%X\n", current_data_address);
-            return;
+            exit(EXIT_FAILURE);
         }
         // Update the data address
 
@@ -406,6 +409,7 @@ void validate_data_field(const char *label_name, char **args, int arg_count, Lab
         
     } else {
         printf("Error: Unsupported directive %s in data field\n", args[0]);
+        exit(EXIT_FAILURE);
     }
 
 }

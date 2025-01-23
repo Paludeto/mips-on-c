@@ -15,6 +15,6 @@ int main(void) {
 
 	print_reg_table();
 
-	return 0;
+	exit(EXIT_SUCCESS);
 
 }
