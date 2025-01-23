@@ -99,8 +99,11 @@ void execute_syscall(Instruction inst) {
     int syscall_code = r_array[2].value;
 
     switch (syscall_code) {
+        case 1:
+            printf("%d\n", r_array[4].value);
+            break;
         case 4:
-            printf("Output: %s\n", (char *)&data_memory[r_array[4].value]);
+            printf("%s\n", (char *)&data_memory[r_array[4].value]);
             break;
         case 10:
             printf("Exiting program...\n");
