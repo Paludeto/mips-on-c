@@ -38,6 +38,7 @@ int menu() {
 
     int op = 0;
     int file_loaded = 0;
+    int is_first_execution = 1;
     char filepath[256] = "";
     int result;
 
@@ -81,6 +82,7 @@ int menu() {
 
                 if(result == 0) {
                     file_loaded = 1;
+                    is_first_execution = 1;
                     printf("%sArquivo carregado \xE2\x9C\x94%s\n", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
                 } else {
                     file_loaded = 0;
@@ -100,18 +102,25 @@ int menu() {
                 } else {
 
                     clear_screen();
-                    clear_instructions();
-                    init_registers();
-                    printf("%sRe-carregando arquivo: %s%s\n", ANSI_COLOR_YELLOW, filepath, ANSI_COLOR_RESET);
-                    result = parse_file(filepath);
 
-                    if(result == 0) {
-                        printf("%sArquivo recarregado \xE2\x9C\x94%s\n", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+                    if(is_first_execution) {
                         printf("%sExecutando instruções...%s\n", ANSI_COLOR_YELLOW, ANSI_COLOR_RESET);
                         execute_instructions();
                         printf("%sInstruções executadas.%s\n", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+                        is_first_execution = 0;
                     } else {
-                        printf("%sErro ao recarregar o arquivo.%s\n", ANSI_COLOR_RED, ANSI_COLOR_RESET);
+                        clear_instructions();
+                        init_registers();
+                        printf("%sRecarregando arquivo: %s%s\n", ANSI_COLOR_YELLOW, filepath, ANSI_COLOR_RESET);
+                        result = parse_file(filepath);
+                        if(result == 0) {
+                            printf("%sArquivo recarregado \xE2\x9C\x94%s\n", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+                            printf("%sExecutando instruções...%s\n", ANSI_COLOR_YELLOW, ANSI_COLOR_RESET);
+                            execute_instructions();
+                            printf("%sInstruções executadas.%s\n", ANSI_COLOR_GREEN, ANSI_COLOR_RESET);
+                        } else {
+                            printf("%sErro ao recarregar o arquivo.%s\n", ANSI_COLOR_RED, ANSI_COLOR_RESET);
+                        }
                     }
 
                     wait_for_enter();
@@ -160,7 +169,5 @@ int menu() {
         }
 
     } while(op != 5);
-
-    return EXIT_SUCCESS;
 
 }

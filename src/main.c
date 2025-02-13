@@ -5,6 +5,6 @@
 
 int main(void) {
 
-	menu();
+	return menu();
 
 }
