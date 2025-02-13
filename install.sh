@@ -1,10 +1,10 @@
 #!/bin/bash
 
 if ! command -v mpv &>/dev/null; then
-    echo "mpv não está instalado. Instalando mpv..."
+    echo "Instalando dependências..."
     sudo apt update && sudo apt install -y mpv
     if ! command -v mpv &>/dev/null; then
-        echo "Falha na instalação do mpv. Por favor, instale-o manualmente."
+        echo "Falha na instalação."
         exit 1
     fi
 fi
