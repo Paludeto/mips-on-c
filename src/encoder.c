@@ -5,7 +5,6 @@
 
 int encode_instruction(Instruction inst) {
 
-
     int binary = -1;
 
     switch (inst.type) {   
@@ -59,12 +58,11 @@ void encode_inst_arr(Instruction *inst_arr) {
 
         inst_bin = encode_instruction(inst_arr[i]);
 
-        if (inst_bin == -1 && inst_arr[i].type == P) {
-            printf("Instruction at index %d is a pseudo-instruction\n", i);
-        } else {
-            print_binary(inst_bin);
-            printf("\n");
+        if (inst_bin == -1) {
+            continue;
         }
+        
+        print_binary(inst_bin);
 
     }
 

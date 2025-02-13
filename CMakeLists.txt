@@ -19,6 +19,7 @@ set(SOURCES
     src/register.c
     src/encoder.c
     src/validator.c
+    src/menu.c
 )
 
 # Add executable
