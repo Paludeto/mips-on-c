@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+/**
+ * @brief Instruction types enum
+ * 
+ */
 typedef enum InstructionType {
     R,
     I,
@@ -12,7 +16,10 @@ typedef enum InstructionType {
     UNKNOWN
 } InstructionType;
 
-// Actual instructions
+/**
+ * @brief Instruction structs, contains the opcode and the type of the instruction.
+ * 
+ */
 typedef struct Instruction {
 
     uint8_t opcode;
@@ -55,6 +62,10 @@ typedef struct Instruction {
 
 } Instruction;
 
+/**
+ * @brief Info type used by jump-table
+ * 
+ */
 typedef struct InstructionInfo {
     
     char *name;
@@ -65,6 +76,10 @@ typedef struct InstructionInfo {
     
 } InstructionInfo;
 
+/**
+ * @brief Jump table definition, global
+ * 
+ */
 typedef void (*InstructionHandler)(Instruction);
 extern InstructionHandler jump_table[];
 

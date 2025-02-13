@@ -4,13 +4,29 @@
 #include "instructions.h"
 #include "label.h"
 
+/**
+ * @brief Text field validation
+ * 
+ */
 bool validate_operands(const InstructionInfo *inst_def, char **operands, int operand_count);
 void validate_inst(const char *instruction, char **operands, int operand_count);
 void validate_data_field(const char *label_name, char **args, int arg_count, Label *label_arr);
+
+/**
+ * @brief Data extraction
+ * 
+ */
 bool extract_op(const InstructionInfo *inst_def, char **operands, int operand_count);
 int extract_register(const char *operand);
 int extract_address(const char *operand);
 
+/**
+ * @brief Token checks
+ * 
+ * @param token 
+ * @return true 
+ * @return false 
+ */
 bool is_label(const char *token);
 bool is_op(const char *token);
 bool is_immediate(const char *token);

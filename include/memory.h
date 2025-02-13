@@ -20,6 +20,7 @@ extern uint32_t program_counter;
 // Function to load a word from simulated memory (big-endian)
 bool load_word_from_memory(uint32_t address, int *value);
 
+// Function to store a word from simulated memory (big-endian)
 bool store_word_to_memory(uint32_t address, int value);
 
 // Function to store string address

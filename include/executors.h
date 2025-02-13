@@ -1,10 +1,13 @@
-// executors.h
 #ifndef EXECUTORS_H
 #define EXECUTORS_H
 
 #include "instructions.h"
 
-// Function prototypes for executors
+/**
+ * @brief Executors for each instruction
+ * 
+ * @param inst 
+ */
 void execute_add(Instruction inst);
 void execute_sub(Instruction inst);
 void execute_mult(Instruction inst);

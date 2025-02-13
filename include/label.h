@@ -1,4 +1,3 @@
-// label_list.h
 #ifndef LABEL_H
 #define LABEL_H
 
@@ -7,10 +6,9 @@
 #define MAX_LABELS 500
 #define MAX_LABEL_LEN 100
 
-// Definition of Label
 typedef struct Label {
     char name[MAX_LABEL_LEN];
-    uint32_t address;    // Memory address associated with the label
+    uint32_t address; 
 } Label;
 
 extern Label label_arr[];
