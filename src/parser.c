@@ -14,7 +14,7 @@
 #define MAX_INPUT_SIZE 256
 #define MAX_OPERANDS 4
 
-void parse_file(char *file_name) {
+int parse_file(char *file_name) {
 
     FILE *fp;
     char line[MAX_INPUT_SIZE];
@@ -23,8 +23,7 @@ void parse_file(char *file_name) {
     int inst_line = 0;
 
     if ((fp = fopen(file_name, "r")) == NULL) {
-        perror("File could not be opened");
-        exit(EXIT_FAILURE);
+        return 1;
     }
 
     initialize_memory();
@@ -46,6 +45,8 @@ void parse_file(char *file_name) {
     }
 
     fclose(fp);
+
+    return 0;
 
 }
 
@@ -70,6 +71,10 @@ void tokenize_line(char *line, char *current_mode, bool *is_first_read, int *ins
     char *token = strtok(line, delimiters);
 
     if (token == NULL) return; // Skip empty lines
+
+    if (current_mode[0] == '\0') {
+        strcpy(current_mode, ".text");
+    }
 
     char *label_name = NULL;  // Declare label name outside
 

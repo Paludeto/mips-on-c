@@ -2,6 +2,7 @@
 
 #include "encoder.h"
 #include "memory.h"
+#include "register.h"
 
 int encode_instruction(Instruction inst) {
 
