@@ -109,7 +109,7 @@ void execute_syscall(Instruction inst) {
             break;
         case 10:
             printf("Exiting program...\n");
-            return;
+            break;
         default:
             printf("Error: Unsupported syscall code %d\n", syscall_code);
             exit(EXIT_FAILURE);
