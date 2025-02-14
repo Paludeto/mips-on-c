@@ -154,4 +154,10 @@ Para limpar todos os arquivos gerados e reconstruir o projeto do zero:
 
 2. **Repita o processo de build** a partir do passo 2.
 
+## Execução
+
+1. **Insira um arquivo .s dentro do diretório build**
+2. **Execute o programa**
+
+**OBS: os arquivos .s ou .asm DEVEM estar dentro da pasta build para serem executados
 ---
